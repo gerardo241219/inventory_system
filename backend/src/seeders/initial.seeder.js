@@ -1,0 +1,344 @@
+require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const { sequelize, Business, User, Category, UnitOfMeasure, Product } = require('../models');
+
+const UNITS = [
+  { code: 'KG', name: 'Kilogramo' },
+  { code: 'PZA', name: 'Pieza' },
+  { code: 'BID', name: 'Bidón' },
+  { code: 'CUB', name: 'Cubeta' },
+  { code: 'PQT', name: 'Paquete' },
+  { code: 'PQTE', name: 'Paquete grande' },
+  { code: 'BTO', name: 'Bulto' },
+  { code: 'CJA', name: 'Caja' },
+  { code: 'POTE', name: 'Pote' },
+  { code: 'SAC', name: 'Saco' },
+  { code: '02', name: 'Otro' },
+];
+
+const CATEGORIES = [
+  'ACEITE',
+  'ALMACEN INTERMEDIO',
+  'ARTICULOS DE SEGURIDAD',
+  'BOLSA DE PLASTICO',
+  'BOLSA IMPRESA',
+  'BOLSAS DE CELOFAN',
+  'CACAHUATES',
+  'CAJAS DE CARTON',
+  'CONDIMENTOS',
+  'CUARTO FRIO 1',
+  'CUARTO FRIO 2',
+  'ETIQUETAS',
+  'HARINA DE MAIZ',
+  'PALMEX FRITURA HARINA DE TRIGO',
+  'PASTECH FRITURA DE HARINA DE TRIGO',
+  'PELLET',
+];
+
+// productos[codigo, nombre, unidad, costo, clasificacion, status, categoria]
+const PRODUCTS = [
+  // ACEITE
+  ['005', 'CUBETA DE OLEINA CON 17.1 KILOS', 'CUB', 375.35, 'M', 'A', 'ACEITE'],
+  ['006', 'ACEITE EN BIDON CON 20 LTS.', 'BID', 860.00, 'M', 'A', 'ACEITE'],
+  ['007', 'RECICLADO BIDON DE ACEITE CON 20 LTS.', 'BID', 0.00, 'M', 'A', 'ACEITE'],
+  ['008', 'RECICLADO CUBETA DE ACEITE CON 20 LTS.', 'CUB', 0.00, 'M', 'A', 'ACEITE'],
+  // ALMACEN INTERMEDIO
+  ['142', 'PAPA FRITA CON SAL', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['143', 'PAPA FRITA SIN SAL', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['144', 'PAPA ADOBADA', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['145', 'PAPA JALAPEÑO', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['146', 'CHURRO TRADICIONAL NATURAL', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['147', 'CHURRON TRADICIONAL CON AJONJOLI (GRUESO)', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['148', 'CHURRO DELGADO CON AJONJOLI', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['149', 'CHURRO DELGADO COLOR NARANJA', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['150', 'CHURRO DELGADO COLOR AMARILLO', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['151', 'CHURRO DELGADO TIPO TAKIS', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['152', 'CHURRO DE MAIZ INTENSO', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['153', 'CHURRO DE MAIZ CHIPOTLE', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['154', 'CHURRO DE MAIZ TIPO TAKIS', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['156', 'CHICHARRON LARGE', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['157', 'CHICHARRON X-LARGE', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['158', 'TIRA AHUMADA DE CHICHARRON', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['159', 'CHICHARRON TIPO YESCA', 'KG', 90.56, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['160', 'TOSTADA GRANDE', 'PZA', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['161', 'TOSTADA CAMARONERA', 'PZA', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['162', 'TOSTADA PARA NACHOS', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['163', '2X2 LISO PASTECH con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['164', '2X2 LISO PASTECH sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['165', 'RIN MAXIMUS BULTO CON 15 KGS. PASTECH', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['166', 'TAPETE 2X2 PASTECH con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['167', 'TAPETE 2X2 PASTECH sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['168', 'TORNILLO BULTO CON 15 KGS.PASTECH', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['169', 'TUERCA BULTO CON 15 KGS. PASTECH', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['170', 'PAPA TRIGUEÑA PASTECH con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['171', 'PAPA TRIGUEÑA PASTECH sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['172', 'CABELLIN PASTECH con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['173', 'CABELLIN PASTECH sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['174', 'DONA GRANDE PASTECH con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['175', 'DONA GRANDE PASTECH sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['176', 'LAGRIMA PASTECH con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['177', 'LAGRIMA PASTECH sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['178', 'MINI RIN PASTECH', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['179', 'PALITO PASTECH con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['180', 'PALITO PASTECH sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['181', 'TAPETE 4X4 PASTECH', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['182', '2X2 LISO INFINITO PAPA PASTECH', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['183', 'MINI RIN INFINITO PAPA PASTECH', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['184', 'RUEDA GRANDE PALMEX', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['185', 'ZARAPE 3X2 PALMEX con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['186', 'ZARAPE 3X2 PALMEX sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['187', 'MINI RUEDA PLUS PALMEX', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['188', 'PAPA FRANCESA PALMEX', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['189', 'PALILLO PALMEX con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['190', 'PALILLO PALMEX con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['191', 'CABELLIN BULTO PALMEX con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['192', 'CABELLIN BULTO PALMEX sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['193', 'MINIRUEDA DE PAPA MAXS PALMEX', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['194', 'CUADRINI PALMEX con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['195', 'CUADRINI PALMEX sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['196', 'MINICUADRO PALMEX con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['197', 'MINICUADRO PALMEX sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['198', 'ANILLO GRANDE PALMEX con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['199', 'ANILLO GRANDE BULTO PALMEX sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['200', 'TORNILLO BULTO CON 15 KGS. PALMEX', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['201', 'TUBO BULTO CON 15 KGS. PALMEX', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['202', '4X4 BULTO CON 15 KGS. PALMEX', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['203', '2X3 LISO PALMEX con chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['204', '2X3 LISO PALMEX sin chile', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['205', 'HOJUELA DE PAPA CLASICA CAJA CON 8 KGS.', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['206', '10X10 EXTRA CAJA CON 20 KGS. PALMEX', 'KG', 0.00, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  ['287', 'CHICHARRON DE CERDO BOLSA CON 250 GRS.', 'PZA', 61.60, 'M', 'A', 'ALMACEN INTERMEDIO'],
+  // ARTICULOS DE SEGURIDAD
+  ['095', 'CEPILLO INCLINADO CERDA DURA', 'PZA', 26.29, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['128', 'BOTA IND. BLANCA SUELA ROJA #4', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['129', 'BOTA IND. BLANCA SUELA ROJA #5', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['130', 'BOTA IND. BLANCA SUELA ROJA #6', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['131', 'BOTA IND. BLANCA SUELA ROJA #7', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['132', 'BOTA IND. BLANCA SUELA ROJA #8', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['133', 'BOTA IND. BLANCA SUELA ROJA #9', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['134', 'GUANTE SOLVEX T-8', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['135', 'FAJA LUMBAR 3 CINTOS T-S', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['136', 'FAJA LUMBAR 3 CINTOS T-M', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['137', 'FAJA LUMBAR 3 CINTOS T-L', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['138', 'GUANTE MINERO CORTO', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['139', 'TAPA BOCAS SENCILLO', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['140', 'FILTO PARA MASCARILLA', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  ['141', 'MALLA PARA CABELLO', 'PZA', 0.00, 'M', 'A', 'ARTICULOS DE SEGURIDAD'],
+  // BOLSA DE PLASTICO
+  ['014', 'BOLSA 50 X 70 (FRITURA DE 900 GRS.)', 'KG', 46.98, 'M', 'A', 'BOLSA DE PLASTICO'],
+  ['015', 'BOLSA 60 X 90 (FRITURA DE PAQUETE Y RRON Y YESCA)', 'KG', 46.98, 'M', 'A', 'BOLSA DE PLASTICO'],
+  ['016', 'BOLSA 25X40 (FRITURA 180 GRS)', 'KG', 0.00, 'M', 'A', 'BOLSA DE PLASTICO'],
+  ['017', 'BOLSA 35 X 45 (FRITURA 300 GRS.)', 'KG', 55.17, 'M', 'A', 'BOLSA DE PLASTICO'],
+  ['018', 'BOLSA 70+30X90 ALTA DENSIDAD (PAPA 5 KGS.)', 'KG', 0.00, 'M', 'A', 'BOLSA DE PLASTICO'],
+  ['019', 'BOLSA 50x80 CALIBRE 200 (CHURO 7 KGS.)', 'KG', 0.00, 'M', 'A', 'BOLSA DE PLASTICO'],
+  // BOLSA IMPRESA
+  ['020', 'PAPITA 40 GRS. (13X20) PAQUETE CON 100 BOLSAS', 'PQT', 0.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['021', 'CHURRITO 80 GRS. 13X20 PQTE C/100 BOLSAS', 'PQT', 0.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['022', 'PAPA GRANDE 80 GRS. (17X27 PQTE. CON 100 BOLSAS)', 'PQT', 0.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['023', 'CHURRO DE MAIZ GRANDE 195 GRS. (17X27 PQTE. CON 100 BOLSAS)', 'PQT', 480.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['024', 'CHICHARRON GRANDE 55 GRS. (17X27 PQTE CON 100 BOLSAS)', 'PQT', 0.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['025', 'PAPA JBO. 175 GRS. (22X34 PQTE CON 100 BOLSAS)', 'PQT', 101.40, 'M', 'A', 'BOLSA IMPRESA'],
+  ['026', 'CHURRO DE MAIZ JBO. 450 GRS. (22X34 PQTE CON 100 BOLSAS)', 'PQT', 0.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['027', 'CHICHARRON JBO. 130 GRS. (22X35 PQTE CON 100 BOLSAS)', 'PQT', 0.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['028', 'YESCA 100 GRS. (14X25 CMS PQTE CON 100 BOLSAS)', 'PQT', 348.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['029', 'TOSTADA GRANDE 380 GRS. (12X4.5X42 CMS PQTE CON 100 BOLSAS)', 'PQT', 120.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['030', 'TOSTADA CON 15 PZAS. (12X4.5X35 PQTE CON 100 BOLSAS)', 'PQT', 720.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['050', 'TOSTADA PARA NACHOS 400 GRS. -- 25 X 36 PQTE 100 BOLSAS', 'PQT', 0.00, 'M', 'A', 'BOLSA IMPRESA'],
+  ['051', 'TOSTADA PARA NACHOS 850 GRS -- 24X3X45 PTE 100 BOLSAS', 'PQT', 0.00, 'M', 'A', 'BOLSA IMPRESA'],
+  // BOLSAS DE CELOFAN
+  ['031', 'BOLSAS CELOFAN 18 X 26 CMS PAQUETE CON 100 BOLSAS (PQTITO)', 'PQT', 39.80, 'M', 'A', 'BOLSAS DE CELOFAN'],
+  ['032', 'BOLSAS CELOFAN 25X35 CMS. PAQUETE CON 100 BOLSAS', 'PQTE', 0.00, 'M', 'A', 'BOLSAS DE CELOFAN'],
+  ['033', 'BOLSAS CELOFAN 30 X 45 PAQUETE CON 100 BOLSAS (CAMARONERA 1)', 'PQTE', 0.00, 'M', 'A', 'BOLSAS DE CELOFAN'],
+  ['034', 'BOLSAS CELOFAN 30 X 50 CMS PAQUETE CON 100 BOLSAS (CAMARONERA)', 'PZA', 72.07, 'M', 'A', 'BOLSAS DE CELOFAN'],
+  ['035', 'BOLSAS CELOFAN 9 X 20 CMS 50 MIC PQTE. (CACAHUATE)', 'PQT', 23.00, 'M', 'A', 'BOLSAS DE CELOFAN'],
+  ['036', 'BOLSAS CELOFAN 10 X 20 CMS PAQUETE CON 100 BOLSAS', 'PQTE', 0.00, 'M', 'A', 'BOLSAS DE CELOFAN'],
+  ['037', 'BOLSAS CELOFAN 25 X 35 CMS PAQUETE CON 100 BOLSAS', 'PQTE', 0.00, 'M', 'A', 'BOLSAS DE CELOFAN'],
+  // CACAHUATES
+  ['073', 'CACAHUATE SALADO CAJA C/28 BOLSAS DE .950 GS.', 'KG', 45.36, 'M', 'A', 'CACAHUATES'],
+  ['074', 'CACAHUATE ENCHILADO CAJA C/28 BOLSAS DE .950 GS.', 'KG', 42.00, 'M', 'A', 'CACAHUATES'],
+  ['075', 'CACAHUATE JAPONES CAJA C/28 BOLSAS DE .950 GS', 'KG', 36.36, 'M', 'A', 'CACAHUATES'],
+  ['076', 'CACAHUATE ESPAÑOL CAJA C/28 BOLSAS DE .950 GS.', 'KG', 46.78, 'M', 'A', 'CACAHUATES'],
+  ['077', 'CACAHUATE BUFALO CAJA C/28 BOLSAS DE .900 GS', 'KG', 45.36, 'M', 'A', 'CACAHUATES'],
+  ['078', 'CACAHUATE GARAMPINADO CAJA CON 25 KGS.', 'KG', 33.30, 'M', 'A', 'CACAHUATES'],
+  ['079', 'CACAHUATE GARAMPIÑADO CON AJONJOLI CAJA CON 25 KGS', 'KG', 33.00, 'M', 'A', 'CACAHUATES'],
+  ['080', 'HABA ENCHILADA CAJA C/18 BOLSAS DE .900 GS', 'KG', 0.00, 'M', 'A', 'CACAHUATES'],
+  ['081', 'GARBANZO CAJA CON 21 KGS.', 'KG', 52.00, 'M', 'A', 'CACAHUATES'],
+  ['082', 'MAIZ CHEDAR CAJA CON 10 KGS.', 'KG', 0.00, 'M', 'A', 'CACAHUATES'],
+  ['083', 'MAIZ CHIPOTLE CAJA CON 10 KGS', 'KG', 0.00, 'M', 'A', 'CACAHUATES'],
+  ['084', 'SEMILLA TOSTADA 5 KG', 'KG', 0.00, 'M', 'A', 'CACAHUATES'],
+  ['085', 'BOTANERO HOT CAJA CON 10 KGS.', 'KG', 566.50, 'M', 'A', 'CACAHUATES'],
+  ['086', 'CANTINERO (CON TOTOPO) CAJA CON 10 KGS.', 'CJA', 559.83, 'M', 'A', 'CACAHUATES'],
+  ['087', 'PIÑA ENCHILADA CAJA CON KGS.', 'KG', 0.00, 'M', 'A', 'CACAHUATES'],
+  ['088', 'MANGO ENCHILADO CAJA DE 10 KGS.', 'KG', 0.00, 'M', 'A', 'CACAHUATES'],
+  ['288', 'CACAHUATE SALADO BOLSA CON .950', 'PZA', 50.42, 'M', 'A', 'CACAHUATES'],
+  ['289', 'CACAHUATE ENCHILADO BOLSA CON .950 GS', 'PZA', 49.88, 'M', 'A', 'CACAHUATES'],
+  ['290', 'CACAHUATE JAPONES BOLSA CON .950 GS', 'PZA', 40.70, 'M', 'A', 'CACAHUATES'],
+  ['291', 'CACAHUATE ESPAÑOL (VIRGINIA) BOLSA CON .950 GS.', 'PZA', 44.48, 'M', 'A', 'CACAHUATES'],
+  ['292', 'HABA ENCHILADA BOLSA CON .900 GS', 'PZA', 0.00, 'M', 'A', 'CACAHUATES'],
+  ['293', 'CACAHUATE GARAMPIÑADO BOLSA CON KG', 'PZA', 38.54, 'M', 'A', 'CACAHUATES'],
+  ['294', 'CACAHUATE GARAMPIÑADO CON AJONJOLI BOLSA CON 1 KG.', 'PZA', 38.54, 'M', 'A', 'CACAHUATES'],
+  ['295', 'CACAHUATE BUFALO BOLSA CON .900 GS.', 'PZA', 53.26, 'M', 'A', 'CACAHUATES'],
+  ['296', 'GARBANZO CHILE BOLSA CON KG.', 'PZA', 41.92, 'M', 'A', 'CACAHUATES'],
+  ['297', 'CACAHUATE BOTANERO (CON TOTOPO) BOLSA CON 1 KG', 'PZA', 44.45, 'M', 'A', 'CACAHUATES'],
+  ['298', 'CACAHUATE CANTINERO (VIRGINIA HOT) BOLSA CON 1 KG', 'PZA', 46.30, 'M', 'A', 'CACAHUATES'],
+  ['403', 'CACAHUATE HOLANDES BOLSA DE 900G', 'BTO', 0.00, 'M', 'A', 'CACAHUATES'],
+  // CAJAS DE CARTON
+  ['071', 'CAJAS DE CARTON PARA 5 KGS DE PAPA', 'PZA', 18.29, 'M', 'A', 'CAJAS DE CARTON'],
+  ['072', 'CAJAS DE CARTON PARA TOSTADA', 'PZA', 9.54, 'M', 'A', 'CAJAS DE CARTON'],
+  // CONDIMENTOS
+  ['059', 'BOLSA DE SAL 1/2 KG', 'PZA', 6.00, 'M', 'A', 'CONDIMENTOS'],
+  ['060', 'BULTO DE SAL DE 50 KILOS', 'KG', 6.40, 'M', 'A', 'CONDIMENTOS'],
+  ['061', 'BOLSA DE AJO EN POLVO CON 40 KG.', 'KG', 35.00, 'M', 'A', 'CONDIMENTOS'],
+  ['062', 'AJONJOLI SACO CON 25 KGS.', 'KG', 55.00, 'M', 'A', 'CONDIMENTOS'],
+  ['063', 'CHILE PREPARADO PARA FRITURA BULTO CON 50 KGS.', 'KG', 25.00, 'M', 'A', 'CONDIMENTOS'],
+  ['064', 'LECITINA DE SOYA TAMBO CON 200 KGS.', 'KG', 0.00, 'M', 'A', 'CONDIMENTOS'],
+  ['065', 'SAZONADOR SABOR CHIPOTLE', 'KG', 0.00, 'M', 'A', 'CONDIMENTOS'],
+  ['066', 'SAZONADOR SABOR JALAPEÑO', 'KG', 72.00, 'M', 'A', 'CONDIMENTOS'],
+  ['067', 'SAZONADOR SABOR ADOBO', 'KG', 67.00, 'M', 'A', 'CONDIMENTOS'],
+  ['068', 'SAZONADOR SABOR FUEGO', 'KG', 0.00, 'M', 'A', 'CONDIMENTOS'],
+  ['070', 'COLOR VEGETAL AMARILLO HUEVO 87 1 A (CUBETA C/6 KGS.)', 'KG', 0.00, 'M', 'A', 'CONDIMENTOS'],
+  // CUARTO FRIO 1
+  ['003', 'ARPILLAS DE PAPA NATURAL', 'BTO', 21.00, 'M', 'A', 'CUARTO FRIO 1'],
+  ['069', 'COLOR VEGETAL AMARILLO NARANJA MD4967 (CUBETA C/6 KGS)', 'KG', 0.00, 'M', 'A', 'CUARTO FRIO 1'],
+  // CUARTO FRIO 2
+  ['004', 'ARPILLAS DE PAPA NATURAL', 'BTO', 0.00, 'M', 'A', 'CUARTO FRIO 2'],
+  // ETIQUETAS
+  ['038', 'ETIQUETA FRITURA 60 GRS.', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['039', 'ETIQUETA SALADO 100 GRS.', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['040', 'ETIQUETA ENCHILADO 100 GRS.', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['041', 'ETIQUETA JAPONES 100 GRS.', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['042', 'ETIQUETA VIRGINIA 100 GRS.', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['043', 'ETIQUETA HABA ENCHILADA 100 GRS.', 'PZA', 0.00, 'M', 'C', 'ETIQUETAS'],
+  ['044', 'ETIQUETA GARAMPINADO', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['045', 'ROLLOS PARA FECHA DE CADUCIDAD', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['046', 'CINTA NEGRA HOT PARA FECHA DE CADUCIDAD', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['047', 'ETIQUETA ADERIBLE AJONJOLI ROLLO CON 2500', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['048', 'ETIQUETA ADERIBLE ADOBADA ROLLO CON 2500', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['049', 'ETIQUETA ADERIBLE CHIPOTLE ROLLO CON 2500', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  ['052', 'ETIQUETA ADERIBLE JALAPEÑO ROLLO CON 2500', 'PZA', 0.00, 'M', 'A', 'ETIQUETAS'],
+  // HARINA DE MAIZ
+  ['0001', 'HARINA DE MAIZ BOTANERA TORTILLA CHIP #2 70382', 'BTO', 354.24, 'M', 'A', 'HARINA DE MAIZ'],
+  ['001', 'HARINA DE AGROINSA SACO CON 20 KGS.', 'BTO', 325.77, 'M', 'A', 'HARINA DE MAIZ'],
+  ['002', 'HARINA DE MAIZ MINSA SACO 20 KGS.', 'BTO', 225.24, 'M', 'A', 'HARINA DE MAIZ'],
+  // PALMEX FRITURA HARINA DE TRIGO
+  ['100', '10X10 MAGNO RENDIDOR 20 KGS', 'CJA', 726.73, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['103', 'RUEDA GRANDE BULTO CON 13 KGS.', 'BTO', 403.78, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['104', 'ZARAPE 3X2 BULTO CON 20 KGS.', 'BTO', 621.20, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['105', 'MINI RUEDA PLUS BULTO CON 15 KGS.', 'BTO', 0.00, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['106', 'PARRILLA BULTO CON 15 KG.', 'BTO', 465.90, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['107', 'PALILLO BULTO CON 15 KGS.', 'BTO', 465.90, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['108', 'CABELLIN BULTO CON 40 KGS.', 'BTO', 0.00, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['109', 'MINIRUEDA DE PAPA MAXS', 'BTO', 0.00, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['110', 'CUADRINI BULTO CON 20 KGS.', 'BTO', 326.60, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['111', 'MINICUADRO BULTO CON 20 KGS.', 'BTO', 327.23, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['112', 'ANILLO GRANDE BULTO CON 15 KGS.', 'BTO', 240.45, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['113', 'TORNILLO BULTO CON 15 KGS.', 'BTO', 240.45, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['114', 'TUBO BULTO CON 15 KGS.', 'BTO', 240.45, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['115', '4X4 BULTO CON 15 KGS.', 'BTO', 465.90, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['116', '2X3 LISO BULTO CON 15 KGS.', 'BTO', 0.00, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['117', 'HOJUELA DE PAPA CLASICA CAJA CON 8 KGS.', 'CJA', 0.00, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  ['118', '10X10 EXTRA CAJA CON 20 KGS.', 'CJA', 0.00, 'M', 'A', 'PALMEX FRITURA HARINA DE TRIGO'],
+  // PASTECH FRITURA DE HARINA DE TRIGO
+  ['089', '2X2 LISO BULTO CON 15 KGS.', 'BTO', 239.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['090', 'RIN MAXIMUS BULTO CON 15 KGS.', 'BTO', 237.65, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['091', 'TAPETE 2X2 BUTLO CON 15 KGS.', 'BTO', 239.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['092', 'TORNILLO BULTO CON 15 KGS.', 'BTO', 0.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['093', 'TUERCA BULTO CON 15 KGS.', 'BID', 237.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['094', 'PAPA TRIGUEÑA BUTO CON 15 KGS.', 'BTO', 237.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['096', 'DONA GRANDE SACO CON 15 KGS.', 'BTO', 0.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['097', 'LAGRIMA BULTO CON 15 KGS.', 'BTO', 0.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['098', 'MINI RIN BULTO CON 15 KGS.', 'BTO', 465.92, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['099', 'PALITO BULTO CON 15 KGS.', 'BTO', 0.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['101', '2X2 LISO INFINITO PAPA BULTO CON 15 KGS.', 'BTO', 0.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  ['102', 'MINI RIN INFINITO PAPA BULTO CON 15 KGS.', 'BTO', 315.00, 'M', 'A', 'PASTECH FRITURA DE HARINA DE TRIGO'],
+  // PELLET
+  ['009', 'TIRA AHUMADA CAJA CON 15 KGS.', 'CJA', 0.00, 'M', 'A', 'PELLET'],
+  ['010', 'PELLET MEDIUM SACO CON 30 KGS.', 'BTO', 0.00, 'M', 'A', 'PELLET'],
+  ['011', 'PELLET LARGE SACO CON 30 KGS.', 'BTO', 4100.36, 'M', 'A', 'PELLET'],
+  ['012', 'PELLET EXTRA LARGE SACO CON 20 KGS.', 'BTO', 0.00, 'M', 'A', 'PELLET'],
+  ['013', 'CRACKLING CAJA CON 31.75 KILOS', 'CJA', 3299.14, 'M', 'A', 'PELLET'],
+  ['02', 'CRACKLING PUERQUITO SACO CON 30 KILOS', 'BTO', 4297.50, 'M', 'A', 'PELLET'],
+  ['03', 'CRACLING PUERQUITO SACO 30 KGS.', 'BTO', 2977.32, 'M', 'A', 'PELLET'],
+];
+
+async function seed() {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync({ alter: true });
+    console.log('Base de datos sincronizada.');
+
+    // Business
+    const [business] = await Business.findOrCreate({
+      where: { name: 'BOTANAS HEBI' },
+      defaults: { name: 'BOTANAS HEBI', type: 'frituras', description: 'Empresa de venta de frituras y botanas' },
+    });
+    console.log(`Business: ${business.name} (id=${business.id})`);
+
+    // Admin user
+    const hash = await bcrypt.hash('Admin1234!', 10);
+    const [admin] = await User.findOrCreate({
+      where: { email: 'admin@botanashebi.com' },
+      defaults: {
+        name: 'Administrador',
+        email: 'admin@botanashebi.com',
+        password: hash,
+        role: 'admin',
+        businessId: business.id,
+      },
+    });
+    console.log(`Usuario admin: ${admin.email}`);
+
+    // Units
+    const unitMap = {};
+    for (const u of UNITS) {
+      const [unit] = await UnitOfMeasure.findOrCreate({
+        where: { code: u.code },
+        defaults: { ...u, businessId: null },
+      });
+      unitMap[u.code] = unit.id;
+    }
+    console.log('Unidades de medida creadas.');
+
+    // Categories
+    const catMap = {};
+    for (const name of CATEGORIES) {
+      const [cat] = await Category.findOrCreate({
+        where: { name, businessId: business.id },
+        defaults: { name, businessId: business.id },
+      });
+      catMap[name] = cat.id;
+    }
+    console.log('Familias creadas.');
+
+    // Products
+    let created = 0;
+    for (const [code, name, unitCode, cost, classification, status, catName] of PRODUCTS) {
+      await Product.findOrCreate({
+        where: { code, businessId: business.id },
+        defaults: {
+          code,
+          name,
+          cost,
+          classification,
+          status,
+          categoryId: catMap[catName] || null,
+          unitOfMeasureId: unitMap[unitCode] || null,
+          businessId: business.id,
+          stock: 0,
+          minStock: 0,
+        },
+      });
+      created++;
+    }
+    console.log(`${created} productos insertados.`);
+    console.log('\nSeeder completado exitosamente.');
+    console.log('  Email: admin@botanashebi.com');
+    console.log('  Password: Admin1234!');
+  } catch (err) {
+    console.error('Error en seeder:', err);
+  } finally {
+    await sequelize.close();
+  }
+}
+
+seed();
