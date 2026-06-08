@@ -7,5 +7,7 @@ router.use('/inventory', require('./inventory.routes'));
 router.use('/suppliers', require('./suppliers.routes'));
 router.use('/reports', require('./reports.routes'));
 router.use('/units', require('./units.routes'));
+router.use('/production', require('./production.routes'));
+router.use('/sales', require('./sales.routes'));
 
 module.exports = router;

@@ -12,6 +12,14 @@ module.exports = (sequelize) => {
     minStock: { type: DataTypes.DECIMAL(10, 2), defaultValue: 0.00 },
     classification: { type: DataTypes.STRING(10), defaultValue: 'M' },
     status: { type: DataTypes.ENUM('A', 'I'), defaultValue: 'A' },
+    productType: {
+      type: DataTypes.ENUM('materia_prima', 'material_empaque', 'granel', 'terminado', 'general'),
+      defaultValue: 'general',
+    },
+    productionArea: {
+      type: DataTypes.ENUM('almacen', 'cocina_churros', 'cocina_papas', 'envasado', 'embarque'),
+      allowNull: true,
+    },
     categoryId: { type: DataTypes.INTEGER, allowNull: true },
     unitOfMeasureId: { type: DataTypes.INTEGER, allowNull: true },
     businessId: { type: DataTypes.INTEGER, allowNull: false },
