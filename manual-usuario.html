@@ -3,828 +3,717 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manual de Usuario — Sistema de Inventario BOTANAS HEBI</title>
+  <title>Manual de Usuario — Botanas HEBI</title>
   <style>
+    :root {
+      --orange:  #F97316;
+      --red:     #B91C1C;
+      --yellow:  #FCD34D;
+      --dark:    #111827;
+      --mid:     #6B7280;
+      --light:   #F3F4F6;
+      --border:  #E5E7EB;
+      --white:   #FFFFFF;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; font-size: 15px; }
 
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--white);
+      color: var(--dark);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ─── HEADER ─── */
     header {
-      background: linear-gradient(135deg, #ea580c 0%, #1e3a8a 100%);
-      color: white; padding: 2.5rem 3rem;
-      display: flex; align-items: center; gap: 1.5rem;
+      background: var(--orange);
+      padding: 3rem 4rem 2.5rem;
+      border-bottom: 4px solid var(--red);
     }
-    .logo {
-      width: 64px; height: 64px; background: rgba(255,255,255,.15);
-      border-radius: 16px; display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; flex-shrink: 0;
+    .header-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; gap: 1.5rem; }
+    .header-badge {
+      background: var(--red);
+      color: var(--yellow);
+      font-size: 1.5rem; font-weight: 900;
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; letter-spacing: -1px;
     }
-    header h1 { font-size: 1.9rem; font-weight: 800; }
-    header p  { margin-top: .35rem; opacity: .85; font-size: .95rem; }
+    header h1 { font-size: 1.6rem; font-weight: 700; color: var(--white); }
+    header p  { color: rgba(255,255,255,.8); font-size: .88rem; margin-top: .2rem; }
 
+    /* ─── NAV ─── */
     nav {
-      background: white; border-bottom: 1px solid #e2e8f0;
-      display: flex; gap: .2rem; padding: .65rem 1.5rem; flex-wrap: wrap;
-      position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      background: var(--dark);
+      padding: .5rem 4rem;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 960px; margin: 0 auto;
+      display: flex; gap: .1rem; flex-wrap: wrap;
     }
     nav a {
-      padding: .4rem .85rem; border-radius: 6px; text-decoration: none;
-      font-size: .82rem; font-weight: 500; color: #475569;
-      transition: background .15s, color .15s;
+      color: rgba(255,255,255,.6);
+      text-decoration: none; font-size: .78rem; font-weight: 500;
+      padding: .4rem .75rem; border-radius: 4px;
+      transition: color .15s, background .15s;
     }
-    nav a:hover { background: #fff7ed; color: #ea580c; }
+    nav a:hover { color: var(--yellow); background: rgba(255,255,255,.07); }
 
-    main { max-width: 1000px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    /* ─── MAIN ─── */
+    main { max-width: 960px; margin: 0 auto; padding: 3rem 2rem 4rem; }
 
-    /* ——— sección ——— */
-    section { margin-bottom: 3.5rem; scroll-margin-top: 70px; }
-
-    .section-head {
-      display: flex; align-items: center; gap: .75rem;
-      margin-bottom: 1.2rem; padding-bottom: .75rem;
-      border-bottom: 2px solid #f1f5f9;
+    /* ─── FLUJO GENERAL (banner) ─── */
+    .flow-banner {
+      display: flex; align-items: center; gap: 0;
+      margin-bottom: 3.5rem; border: 1px solid var(--border); border-radius: 8px;
+      overflow: hidden;
     }
-    .section-icon {
-      width: 44px; height: 44px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem; flex-shrink: 0;
+    .fb-step {
+      flex: 1; padding: 1.1rem .75rem; text-align: center;
+      border-right: 1px solid var(--border);
     }
-    .ic-orange { background: #fff7ed; }
-    .ic-blue   { background: #eff6ff; }
-    .ic-green  { background: #f0fdf4; }
-    .ic-purple { background: #f5f3ff; }
-    .ic-red    { background: #fff1f2; }
-    .ic-gray   { background: #f8fafc; }
+    .fb-step:last-child { border-right: none; }
+    .fb-step .num { font-size: .65rem; font-weight: 700; color: var(--mid); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .3rem; }
+    .fb-step .ico { font-size: 1.4rem; margin-bottom: .3rem; }
+    .fb-step .lbl { font-size: .78rem; font-weight: 700; color: var(--dark); }
+    .fb-step .sub { font-size: .7rem; color: var(--mid); margin-top: .15rem; }
+    .fb-step.active { background: var(--orange); border-color: var(--orange); }
+    .fb-step.active .num,
+    .fb-step.active .lbl,
+    .fb-step.active .sub { color: var(--white); }
 
-    .section-head h2 { font-size: 1.2rem; font-weight: 700; color: #0f172a; }
-    .section-head p  { font-size: .83rem; color: #64748b; margin-top: .1rem; }
+    /* ─── SECCIÓN ─── */
+    section { margin-bottom: 3rem; scroll-margin-top: 56px; }
 
-    /* ——— pasos numerados ——— */
-    .steps { display: flex; flex-direction: column; gap: .85rem; }
+    .section-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--orange);
+      margin-bottom: .4rem;
+    }
+    section h2 {
+      font-size: 1.15rem; font-weight: 700; color: var(--dark);
+      margin-bottom: .3rem;
+    }
+    .section-sub { font-size: .83rem; color: var(--mid); margin-bottom: 1.5rem; }
+
+    hr.section-rule { border: none; border-top: 1px solid var(--border); margin-bottom: 1.5rem; }
+
+    /* ─── STEPS ─── */
+    .steps { display: flex; flex-direction: column; }
     .step {
-      display: flex; gap: 1rem; align-items: flex-start;
-      background: white; border: 1px solid #e2e8f0; border-radius: 10px;
-      padding: 1rem 1.2rem;
+      display: flex; gap: 1.25rem; align-items: flex-start;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
     }
+    .steps .step:first-child { border-top: 1px solid var(--border); }
     .step-num {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: #ea580c; color: white;
-      font-size: .82rem; font-weight: 800;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      margin-top: 1px;
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--orange);
+      color: var(--orange); font-size: .78rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
     }
-    .step-body h3 { font-size: .92rem; font-weight: 700; color: #1e293b; }
-    .step-body p  { font-size: .83rem; color: #475569; margin-top: .25rem; line-height: 1.55; }
-    .step-body .where {
-      display: inline-block; margin-top: .45rem;
-      background: #f1f5f9; border-radius: 5px; padding: .2rem .6rem;
-      font-size: .75rem; color: #334155; font-weight: 600;
+    .step-body h3 { font-size: .9rem; font-weight: 700; }
+    .step-body p  { font-size: .83rem; color: #374151; margin-top: .25rem; }
+    .pill {
+      display: inline-block; margin-top: .5rem;
+      font-size: .72rem; font-weight: 600;
+      background: var(--light); color: var(--mid);
+      padding: .2rem .65rem; border-radius: 20px;
     }
-    .step-body .where::before { content: "📍 "; }
+    .pill::before { content: "↳ "; }
 
-    /* ——— tip / nota / alerta ——— */
-    .tip, .nota, .alerta {
-      border-radius: 8px; padding: .8rem 1rem;
-      font-size: .83rem; line-height: 1.55; margin-top: .85rem;
+    /* ─── NOTICES ─── */
+    .notice {
+      font-size: .83rem; line-height: 1.6;
+      padding: .8rem 1rem; border-radius: 6px; margin-top: 1rem;
+      border-left: 3px solid;
     }
-    .tip   { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-    .nota  { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-    .alerta{ background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; }
-    .tip::before   { content: "✅ "; font-style: normal; }
-    .nota::before  { content: "ℹ️ "; }
-    .alerta::before{ content: "⚠️ "; }
+    .notice.warn  { background: #FFF7ED; border-color: var(--orange); color: #7C2D12; }
+    .notice.info  { background: #F0F9FF; border-color: #38BDF8;       color: #0C4A6E; }
+    .notice.ok    { background: #F0FDF4; border-color: #4ADE80;        color: #14532D; }
 
-    /* ——— flujo visual horizontal ——— */
-    .flow {
-      display: flex; align-items: center; gap: .5rem;
-      flex-wrap: wrap; margin: 1rem 0;
+    /* ─── ESTADO FLOW ─── */
+    .state-flow { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .state {
+      font-size: .75rem; font-weight: 600; padding: .3rem .75rem;
+      border-radius: 20px; border: 1px solid var(--border);
     }
-    .flow-step {
-      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: .6rem 1rem; text-align: center; min-width: 110px;
+    .state.s-gray   { background: var(--light); color: var(--mid); }
+    .state.s-orange { background: #FFF7ED; color: #C2410C; border-color: #FED7AA; }
+    .state.s-red    { background: #FEF2F2; color: var(--red); border-color: #FECACA; }
+    .state.s-green  { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+    .arr { color: var(--border); font-size: .85rem; }
+
+    /* ─── TABLA ─── */
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    thead th {
+      text-align: left; font-size: .75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--mid); padding: .5rem 1rem;
+      border-bottom: 2px solid var(--border);
     }
-    .flow-step .num { font-size: .68rem; color: #94a3b8; font-weight: 700; margin-bottom: .1rem; }
-    .flow-step .lbl { font-size: .82rem; font-weight: 600; color: #1e293b; }
-    .flow-step .sub { font-size: .7rem; color: #64748b; margin-top: .1rem; }
-    .flow-arrow { color: #94a3b8; font-size: 1.2rem; flex-shrink: 0; }
+    tbody td { padding: .75rem 1rem; font-size: .83rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
 
-    .flow-step.orange { border-color: #fed7aa; background: #fff7ed; }
-    .flow-step.blue   { border-color: #bfdbfe; background: #eff6ff; }
-    .flow-step.green  { border-color: #bbf7d0; background: #f0fdf4; }
-    .flow-step.purple { border-color: #ddd6fe; background: #f5f3ff; }
+    /* ─── ROL CARDS ─── */
+    .rol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .rol-card { border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; }
+    .rol-card h3 { font-size: .88rem; font-weight: 700; margin-bottom: .75rem; display: flex; align-items: center; gap: .4rem; }
+    .rol-card ul { list-style: none; padding: 0; }
+    .rol-card ul li { font-size: .8rem; color: #374151; padding: .25rem 0; border-bottom: 1px solid var(--border); }
+    .rol-card ul li:last-child { border-bottom: none; }
+    .rol-card ul li::before { content: "· "; color: var(--orange); font-weight: 700; }
+    .rol-card.admin   { border-top: 3px solid var(--red); }
+    .rol-card.manager { border-top: 3px solid var(--orange); }
+    .rol-card.employee{ border-top: 3px solid var(--yellow); border-top-color: #D97706; }
 
-    /* ——— tabla de acceso rápido ——— */
-    .quick-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
-    .quick-table th { background: #1e3a8a; color: white; text-align: left; padding: .65rem 1rem; font-size: .82rem; }
-    .quick-table td { padding: .6rem 1rem; font-size: .82rem; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-    .quick-table tr:last-child td { border-bottom: none; }
-    .quick-table tr:hover td { background: #fafafa; }
+    /* ─── GLOSARIO ─── */
+    .glosario { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .75rem; margin-top: 1rem; }
+    .glosario-item { border: 1px solid var(--border); border-radius: 6px; padding: .9rem 1rem; }
+    .glosario-item dt { font-size: .83rem; font-weight: 700; color: var(--dark); margin-bottom: .25rem; }
+    .glosario-item dd { font-size: .78rem; color: var(--mid); }
 
-    kbd {
-      display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1;
-      border-radius: 4px; padding: .1rem .4rem; font-size: .75rem;
-      font-family: monospace; color: #334155;
+    /* ─── CONSEJOS ─── */
+    .tips { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .75rem; margin-top: 1rem; }
+    .tip-card { border: 1px solid var(--border); border-radius: 6px; padding: 1rem; }
+    .tip-card .tip-ico { font-size: 1.3rem; margin-bottom: .5rem; }
+    .tip-card h3 { font-size: .83rem; font-weight: 700; margin-bottom: .25rem; }
+    .tip-card p  { font-size: .78rem; color: var(--mid); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      text-align: center; font-size: .75rem; color: var(--mid);
+      padding: 2rem; border-top: 1px solid var(--border);
     }
-
-    /* ——— tarjetas de rol ——— */
-    .rol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-    .rol-card {
-      background: white; border: 1px solid #e2e8f0; border-radius: 10px;
-      padding: 1.1rem 1.3rem;
-    }
-    .rol-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .6rem; }
-    .rol-card ul { padding-left: 1.1rem; font-size: .82rem; color: #475569; line-height: 1.9; }
-    .rol-card.admin   { border-top: 3px solid #7c3aed; }
-    .rol-card.manager { border-top: 3px solid #2563eb; }
-    .rol-card.employee{ border-top: 3px solid #0891b2; }
-    .rol-card.admin   h3 { color: #7c3aed; }
-    .rol-card.manager h3 { color: #2563eb; }
-    .rol-card.employee h3{ color: #0891b2; }
-
-    /* ——— glosario ——— */
-    .glosario { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .75rem; }
-    .glosario dt {
-      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: .75rem 1rem;
-    }
-    .glosario dt strong { display: block; font-size: .88rem; color: #1e3a8a; margin-bottom: .2rem; }
-    .glosario dt span   { font-size: .8rem; color: #64748b; line-height: 1.5; }
-
-    footer { text-align: center; color: #94a3b8; font-size: .78rem; padding: 2.5rem; border-top: 1px solid #f1f5f9; }
+    footer span { color: var(--orange); font-weight: 600; }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">🧂</div>
-  <div>
-    <h1>Manual de Usuario</h1>
-    <p>Sistema de Inventario · BOTANAS HEBI · Guía de operación diaria</p>
+  <div class="header-inner">
+    <div class="header-badge">HB</div>
+    <div>
+      <h1>Manual de Usuario</h1>
+      <p>Sistema de Inventario · Botanas HEBI · Guía de operación diaria</p>
+    </div>
   </div>
 </header>
 
 <nav>
-  <a href="#acceso">🔑 Acceso</a>
-  <a href="#dashboard">📊 Dashboard</a>
-  <a href="#compra">🛒 Compra de MP</a>
-  <a href="#produccion">🏭 Producción</a>
-  <a href="#envasado">📦 Envasado</a>
-  <a href="#venta">🧾 Venta</a>
-  <a href="#movimientos">📋 Movimientos</a>
-  <a href="#catalogo">🗂️ Catálogo</a>
-  <a href="#reportes">📈 Reportes</a>
-  <a href="#roles">👥 Roles</a>
-  <a href="#glosario">📖 Glosario</a>
+  <div class="nav-inner">
+    <a href="#acceso">Acceso</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#compra">Compra MP</a>
+    <a href="#produccion">Producción</a>
+    <a href="#envasado">Envasado</a>
+    <a href="#venta">Venta</a>
+    <a href="#movimientos">Movimientos</a>
+    <a href="#catalogo">Catálogo</a>
+    <a href="#reportes">Reportes</a>
+    <a href="#roles">Roles</a>
+    <a href="#glosario">Glosario</a>
+  </div>
 </nav>
 
 <main>
 
-<!-- ─────────────────────────── FLUJO GENERAL ─────────────────────────────── -->
-<section>
-  <div class="section-head">
-    <div class="section-icon ic-orange">🔄</div>
-    <div><h2>Flujo del día a día</h2><p>Orden natural de operación del sistema</p></div>
-  </div>
-
-  <div class="flow">
-    <div class="flow-step orange">
-      <div class="num">PASO 1</div>
-      <div class="lbl">🛒 Compra</div>
+  <!-- FLUJO DEL DÍA -->
+  <div class="flow-banner">
+    <div class="fb-step active">
+      <div class="num">Paso 1</div>
+      <div class="ico">🛒</div>
+      <div class="lbl">Compra</div>
       <div class="sub">Registrar entrada de materia prima</div>
     </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step orange">
-      <div class="num">PASO 2</div>
-      <div class="lbl">🌽 Cocina</div>
-      <div class="sub">Orden de producción Cocina Churros / Papas</div>
+    <div class="fb-step">
+      <div class="num">Paso 2</div>
+      <div class="ico">🏭</div>
+      <div class="lbl">Cocina</div>
+      <div class="sub">Orden de producción Churros / Papas</div>
     </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step blue">
-      <div class="num">PASO 3</div>
-      <div class="lbl">📦 Envasado</div>
+    <div class="fb-step">
+      <div class="num">Paso 3</div>
+      <div class="ico">📦</div>
+      <div class="lbl">Envasado</div>
       <div class="sub">Orden de producción Envasado</div>
     </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step green">
-      <div class="num">PASO 4</div>
-      <div class="lbl">🧾 Venta</div>
+    <div class="fb-step">
+      <div class="num">Paso 4</div>
+      <div class="ico">🧾</div>
+      <div class="lbl">Venta</div>
       <div class="sub">Nota de venta + Embarcar</div>
     </div>
   </div>
 
-  <div class="nota">
-    Cada paso actualiza el inventario automáticamente. No necesitas mover el stock a mano.
-  </div>
-</section>
+  <!-- ── ACCESO ── -->
+  <section id="acceso">
+    <div class="section-label">01 — Inicio</div>
+    <h2>Acceso al sistema</h2>
+    <p class="section-sub">Cómo ingresar por primera vez.</p>
+    <hr class="section-rule">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Abre el navegador</h3>
+          <p>Ve a la dirección que te indicó el administrador. En red local suele ser <strong>localhost:5173</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Ingresa tus credenciales</h3>
+          <p>Correo y contraseña asignados por el administrador. Acceso inicial del sistema:<br>
+            Correo: <strong>admin@botanashebi.com</strong> · Contraseña: <strong>Admin1234!</strong></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Llegas al Dashboard</h3>
+          <p>Resumen del estado del negocio: stock total, alertas y movimientos del día.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Para cerrar sesión</h3>
+          <p>Clic en tu nombre en la esquina superior derecha → <strong>Cerrar sesión</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- ─────────────────────────── ACCESO ────────────────────────────────────── -->
-<section id="acceso">
-  <div class="section-head">
-    <div class="section-icon ic-blue">🔑</div>
-    <div><h2>Acceso al sistema</h2><p>Cómo ingresar por primera vez</p></div>
-  </div>
+  <!-- ── DASHBOARD ── -->
+  <section id="dashboard">
+    <div class="section-label">02 — Panel</div>
+    <h2>Dashboard</h2>
+    <p class="section-sub">Resumen visual al iniciar el día.</p>
+    <hr class="section-rule">
+    <table>
+      <thead><tr><th>Indicador</th><th>Qué significa</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Total de productos</strong></td><td>Número de productos activos en el catálogo.</td></tr>
+        <tr><td><strong>Stock bajo ⚠️</strong></td><td>Productos cuyo stock está en el mínimo o por debajo. Aparece una alerta con la lista para planear compras.</td></tr>
+        <tr><td><strong>Movimientos hoy</strong></td><td>Entradas, salidas y ajustes registrados en el día.</td></tr>
+        <tr><td><strong>Valor del inventario</strong></td><td>Suma de stock × costo de todos los productos. Cuánto dinero tienes almacenado.</td></tr>
+      </tbody>
+    </table>
+  </section>
 
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <h3>Abre el navegador y ve a la dirección del sistema</h3>
-        <p>En red local normalmente es <kbd>http://localhost:5173</kbd> o la dirección que te indique tu administrador.</p>
+  <!-- ── COMPRA MP ── -->
+  <section id="compra">
+    <div class="section-label">03 — Almacén</div>
+    <h2>Registrar compra de materia prima</h2>
+    <p class="section-sub">Cada vez que llega mercancía al almacén.</p>
+    <hr class="section-rule">
+    <div class="notice warn">Registra las entradas de materia prima <strong>antes</strong> de iniciar producción. Sin stock el sistema marca "Stock insuficiente".</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Ve a Movimientos de inventario</h3>
+          <span class="pill">Menú → Movimientos</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Clic en "+ Registrar movimiento"</h3>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Tipo: Entrada</h3>
+          <p>Completa los campos:<br>
+            · <strong>Producto</strong> — la materia prima recibida (harina, aceite, pellet…)<br>
+            · <strong>Cantidad</strong> — kg / litros / piezas<br>
+            · <strong>Costo unitario</strong> — precio de compra<br>
+            · <strong>Proveedor</strong> y <strong>Nota</strong> (opcionales, ej. nº de factura)</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Guardar</h3>
+          <p>El stock del producto sube automáticamente y el movimiento queda en el historial.</p>
+        </div>
       </div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <h3>Ingresa tu correo y contraseña</h3>
-        <p>El administrador te habrá dado tus credenciales. Si es tu primer ingreso al sistema, el acceso inicial es:<br>
-          Correo: <kbd>admin@botanashebi.com</kbd> &nbsp; Contraseña: <kbd>Admin1234!</kbd>
-        </p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <h3>Llegas al Dashboard</h3>
-        <p>Verás un resumen con el total de productos, alertas de stock bajo, movimientos del día y el valor total del inventario.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <h3>Para cerrar sesión</h3>
-        <p>Haz clic en tu nombre en la esquina superior derecha y selecciona <strong>Cerrar sesión</strong>.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    <div class="notice ok">Puedes registrar varias entradas seguidas, una por cada producto recibido.</div>
+  </section>
 
-<!-- ─────────────────────────── DASHBOARD ─────────────────────────────────── -->
-<section id="dashboard">
-  <div class="section-head">
-    <div class="section-icon ic-blue">📊</div>
-    <div><h2>Dashboard (Panel principal)</h2><p>Resumen visual del estado del negocio</p></div>
-  </div>
+  <!-- ── PRODUCCIÓN ── -->
+  <section id="produccion">
+    <div class="section-label">04 — Cocina</div>
+    <h2>Orden de producción</h2>
+    <p class="section-sub">Cuando la cocina va a producir churros, papas u otro producto a granel.</p>
+    <hr class="section-rule">
 
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">📦</div>
-      <div class="step-body">
-        <h3>Total de productos</h3>
-        <p>Número de productos activos en el catálogo.</p>
-      </div>
+    <div class="state-flow">
+      <span class="state s-gray">Borrador</span>
+      <span class="arr">→</span>
+      <span class="state s-orange">En proceso</span>
+      <span class="arr">→</span>
+      <span class="state s-green">Completada ✓</span>
+      <span style="margin-left:.5rem; font-size:.75rem; color:var(--mid)">o bien</span>
+      <span class="state s-red">Cancelada</span>
     </div>
-    <div class="step">
-      <div class="step-num">⚠️</div>
-      <div class="step-body">
-        <h3>Stock bajo</h3>
-        <p>Productos cuyo stock actual es igual o menor al mínimo configurado. Aparece una alerta naranja con la lista de productos que necesitan reabastecerse.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">📋</div>
-      <div class="step-body">
-        <h3>Movimientos hoy</h3>
-        <p>Cuántas entradas, salidas o ajustes se registraron en el día.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">💰</div>
-      <div class="step-body">
-        <h3>Valor del inventario</h3>
-        <p>Suma del <em>stock × costo</em> de todos los productos. Representa cuánto dinero tienes en producto almacenado.</p>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ─────────────────────────── COMPRA MP ─────────────────────────────────── -->
-<section id="compra">
-  <div class="section-head">
-    <div class="section-icon ic-orange">🛒</div>
-    <div><h2>Registrar compra de materia prima</h2><p>Cada vez que llega mercancía al almacén</p></div>
-  </div>
-
-  <div class="alerta">
-    Antes de completar cualquier orden de producción debes registrar primero las entradas de materia prima. De lo contrario el sistema te dirá "Stock insuficiente".
-  </div>
-
-  <div class="steps" style="margin-top:.85rem">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <h3>Ve al módulo de Movimientos</h3>
-        <p>En el menú lateral, sección <strong>Operaciones → Movimientos de inventario</strong>.</p>
-        <span class="where">Menú → Movimientos</span>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Ve a Producción → + Nueva orden</h3>
+          <span class="pill">Menú → Producción</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Elige el área</h3>
+          <p>· <strong>Cocina Churros</strong> — churros, chicharrón de harina, etc.<br>
+             · <strong>Cocina Papas</strong> — papas, tostadas, etc.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Agrega los insumos (lo que entra)</h3>
+          <p>Clic en <strong>+ Agregar insumo</strong>. Selecciona el producto de materia prima y la cantidad a usar (ej. 50 kg de harina).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Agrega los productos generados (lo que sale)</h3>
+          <p>Clic en <strong>+ Agregar producto generado</strong>. Selecciona el granel resultante y la cantidad estimada (ej. 45 kg de churros a granel).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Guardar → Borrador</h3>
+          <p>La orden queda guardada. El inventario no cambia todavía.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h3>Completar y afectar inventario</h3>
+          <p>Cuando la producción esté lista, clic en <strong>"✓ Completar y afectar inventario"</strong>. El sistema descuenta los insumos y suma el producto generado en un solo paso.</p>
+        </div>
       </div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <h3>Haz clic en "+ Registrar movimiento"</h3>
-        <p>Se abre un formulario para capturar la entrada.</p>
+    <div class="notice warn">Si aparece <strong>"Stock insuficiente para [producto]"</strong>, regresa a Movimientos y registra una entrada de ese insumo primero.</div>
+    <div class="notice info">"Iniciar producción" es opcional — solo cambia el estado visual a <em>En proceso</em>. Puedes completar la orden directamente desde Borrador.</div>
+  </section>
+
+  <!-- ── ENVASADO ── -->
+  <section id="envasado">
+    <div class="section-label">05 — Empaque</div>
+    <h2>Orden de producción — Envasado</h2>
+    <p class="section-sub">Cuando el área de envasado empaca el producto a granel.</p>
+    <hr class="section-rule">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Nueva orden — área: Envasado</h3>
+          <span class="pill">Menú → Producción → + Nueva orden</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Insumos típicos</h3>
+          <p>· Producto a granel (churros, papas…) que se va a empacar.<br>
+             · Bolsas o fundas de presentación.<br>
+             · Etiquetas y cajas de cartón.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Producto generado</h3>
+          <p>El producto <strong>terminado</strong> ya empacado (ej. "Churros 100g bolsa × 12").</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Completar</h3>
+          <p>El granel y el empaque bajan; el producto terminado sube. Ya está disponible para vender.</p>
+        </div>
       </div>
     </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <h3>Selecciona tipo: <strong>Entrada</strong></h3>
-        <p>También deberás elegir:</p>
-        <p>• <strong>Producto</strong>: la materia prima que llegó (ej. Harina de trigo, Aceite, Pellet).<br>
-           • <strong>Cantidad</strong>: cuántos kilos / litros / piezas entraron.<br>
-           • <strong>Costo unitario</strong>: precio al que compraste.<br>
-           • <strong>Proveedor</strong> (opcional): quién te vendió.<br>
-           • <strong>Motivo / Nota</strong> (opcional): número de factura, lote, etc.</p>
+  </section>
+
+  <!-- ── VENTA ── -->
+  <section id="venta">
+    <div class="section-label">06 — Comercial</div>
+    <h2>Nota de venta</h2>
+    <p class="section-sub">Registrar una venta y descontar el producto terminado del almacén.</p>
+    <hr class="section-rule">
+
+    <div class="state-flow">
+      <span class="state s-gray">Borrador</span>
+      <span class="arr">→</span>
+      <span class="state s-orange">Confirmada</span>
+      <span class="arr">→</span>
+      <span class="state s-green">Embarcada 🚚</span>
+      <span style="margin-left:.5rem; font-size:.75rem; color:var(--mid)">o bien</span>
+      <span class="state s-red">Cancelada</span>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Ve a Notas de Venta → + Nueva nota</h3>
+          <span class="pill">Menú → Notas de Venta</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Datos del cliente</h3>
+          <p>Nombre, teléfono y dirección de entrega (el nombre es obligatorio).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Agregar productos</h3>
+          <p>Clic en <strong>+ Agregar producto</strong>. Busca el producto terminado, indica la cantidad. El precio se rellena desde el catálogo; puedes modificarlo para precios especiales.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Descuento (opcional)</h3>
+          <p>Campo <strong>Descuento %</strong> — el total se recalcula automáticamente.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Guardar → Borrador</h3>
+          <p>El inventario no baja todavía. Puedes editar o cancelar.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h3>Confirmar (opcional)</h3>
+          <p>Cuando el cliente aceptó el pedido. Solo cambia el estado; el stock no se mueve.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-body">
+          <h3>Embarcar — descuenta el inventario</h3>
+          <p>Cuando el pedido sale físicamente del almacén, clic en <strong>"Embarcar y descontar inventario"</strong>. El stock de cada producto baja y se genera un movimiento de salida.</p>
+        </div>
       </div>
     </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <h3>Haz clic en "Guardar"</h3>
-        <p>El stock del producto se actualiza automáticamente y el movimiento queda registrado en el historial.</p>
+    <div class="notice warn">Si falta stock al embarcar, revisa si hay órdenes de envasado pendientes de completar.</div>
+    <div class="notice ok">Puedes cancelar una nota en cualquier momento antes de embarcarla sin afectar el inventario.</div>
+  </section>
+
+  <!-- ── MOVIMIENTOS ── -->
+  <section id="movimientos">
+    <div class="section-label">07 — Historial</div>
+    <h2>Movimientos de inventario</h2>
+    <p class="section-sub">Historial de todos los cambios de stock y ajustes manuales.</p>
+    <hr class="section-rule">
+    <table>
+      <thead><tr><th>Tipo</th><th>Cuándo usarlo</th><th>Efecto</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:#15803D">↑ Entrada</strong></td>
+          <td>Llegó mercancía del proveedor</td>
+          <td>Stock sube</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--red)">↓ Salida</strong></td>
+          <td>Se retiró producto sin ser una venta (merma, donación, consumo interno)</td>
+          <td>Stock baja</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#1D4ED8">⇄ Ajuste</strong></td>
+          <td>El conteo físico no coincide con el sistema — corrección de inventario</td>
+          <td>Stock queda en el valor capturado</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="notice info">Los movimientos generados automáticamente por producción y ventas también aparecen aquí. No los creaste tú, los creó el sistema.</div>
+  </section>
+
+  <!-- ── CATÁLOGO ── -->
+  <section id="catalogo">
+    <div class="section-label">08 — Catálogo</div>
+    <h2>Productos, Familias y Proveedores</h2>
+    <p class="section-sub">Administración del catálogo maestro.</p>
+    <hr class="section-rule">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">📦</div>
+        <div class="step-body">
+          <h3>Productos</h3>
+          <p>~150 productos del catálogo HEBI cargados. Busca por nombre o filtra por familia. Campos clave: <strong>Tipo de producto</strong> (materia prima / empaque / granel / terminado), <strong>Stock mínimo</strong> (umbral de alerta), <strong>Precio de venta</strong> (se precarga en notas de venta).</p>
+          <span class="pill">Menú → Productos</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">🏷️</div>
+        <div class="step-body">
+          <h3>Familias</h3>
+          <p>16 grupos: Churros, Papas, Palomitas, Chicharrón, etc. Se usan para filtrar el catálogo. Puedes crear nuevas familias.</p>
+          <span class="pill">Menú → Familias</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">🏢</div>
+        <div class="step-body">
+          <h3>Proveedores</h3>
+          <p>Lista de quienes te surten. Se asocian a los movimientos de entrada para rastrear compras.</p>
+          <span class="pill">Menú → Proveedores</span>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="tip">Puedes registrar varias entradas seguidas, una por cada producto que llegó.</div>
-</section>
+  <!-- ── REPORTES ── -->
+  <section id="reportes">
+    <div class="section-label">09 — Análisis</div>
+    <h2>Reportes</h2>
+    <p class="section-sub">Valuación del inventario y alertas de stock.</p>
+    <hr class="section-rule">
+    <table>
+      <thead><tr><th>Reporte</th><th>Para qué sirve</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Valuación de inventario</strong></td><td>Stock × costo de cada producto. Muestra cuánto dinero está invertido en el almacén.</td></tr>
+        <tr><td><strong>Stock bajo</strong></td><td>Lista de productos que ya llegaron al mínimo. Útil para planear compras semanales.</td></tr>
+        <tr><td><strong>Historial de movimientos</strong></td><td>Filtros por fecha, tipo y producto para auditoría de cualquier período.</td></tr>
+      </tbody>
+    </table>
+    <span class="pill" style="margin-top:.75rem; display:inline-block;">Menú → Reportes</span>
+  </section>
 
-<!-- ─────────────────────────── PRODUCCIÓN ────────────────────────────────── -->
-<section id="produccion">
-  <div class="section-head">
-    <div class="section-icon ic-orange">🏭</div>
-    <div><h2>Orden de producción (Cocina)</h2><p>Cuando la cocina va a producir churros, papas u otro producto a granel</p></div>
-  </div>
-
-  <div class="flow" style="margin-bottom:1rem">
-    <div class="flow-step orange">
-      <div class="num">ESTADO 1</div>
-      <div class="lbl">Borrador</div>
-      <div class="sub">recién creada</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step blue">
-      <div class="num">ESTADO 2</div>
-      <div class="lbl">En proceso</div>
-      <div class="sub">cocina trabajando</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step green">
-      <div class="num">ESTADO 3</div>
-      <div class="lbl">✓ Completada</div>
-      <div class="sub">inventario actualizado</div>
-    </div>
-  </div>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <h3>Ve al módulo de Producción</h3>
-        <span class="where">Menú → Producción</span>
+  <!-- ── ROLES ── -->
+  <section id="roles">
+    <div class="section-label">10 — Accesos</div>
+    <h2>Roles y permisos</h2>
+    <p class="section-sub">Qué puede hacer cada tipo de usuario.</p>
+    <hr class="section-rule">
+    <div class="rol-grid">
+      <div class="rol-card admin">
+        <h3>👑 Administrador</h3>
+        <ul>
+          <li>Todo lo del sistema</li>
+          <li>Crear y gestionar usuarios</li>
+          <li>Desactivar productos y familias</li>
+          <li>Ver valuación de inventario</li>
+          <li>Embarcar notas de venta</li>
+        </ul>
+      </div>
+      <div class="rol-card manager">
+        <h3>🧑‍💼 Manager</h3>
+        <ul>
+          <li>Crear y editar productos</li>
+          <li>Crear y editar familias y proveedores</li>
+          <li>Completar órdenes de producción</li>
+          <li>Embarcar notas de venta</li>
+          <li>Ver valuación de inventario</li>
+        </ul>
+      </div>
+      <div class="rol-card employee">
+        <h3>👷 Empleado</h3>
+        <ul>
+          <li>Ver productos y stock</li>
+          <li>Registrar movimientos manuales</li>
+          <li>Crear y confirmar notas de venta</li>
+          <li>Ver historial de movimientos</li>
+          <li>Ver reportes básicos</li>
+        </ul>
       </div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <h3>Haz clic en "+ Nueva orden"</h3>
-        <p>Se abre el formulario de orden de producción.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <h3>Elige el área</h3>
-        <p>• <strong>Cocina Churros</strong> — para churros, chicharrón de harina, etc.<br>
-           • <strong>Cocina Papas</strong> — para papas, tostadas, etc.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <h3>Agrega los insumos (lo que entra)</h3>
-        <p>Clic en <strong>"+ Agregar insumo"</strong>. Selecciona el producto de materia prima y la cantidad que se va a usar (ej. 50 kg de harina de trigo).</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">5</div>
-      <div class="step-body">
-        <h3>Agrega los productos que se generan (lo que sale)</h3>
-        <p>Clic en <strong>"+ Agregar producto generado"</strong>. Selecciona el producto a granel que resulta y la cantidad estimada (ej. 45 kg de churros a granel).</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">6</div>
-      <div class="step-body">
-        <h3>Guarda la orden</h3>
-        <p>Queda en estado <strong>Borrador</strong>. Puedes revisarla antes de ejecutarla.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">7</div>
-      <div class="step-body">
-        <h3>Cuando la producción esté lista: haz clic en "✓ Completar y afectar inventario"</h3>
-        <p>El sistema descuenta automáticamente los insumos del almacén y suma el producto generado. Se crea un registro de cada movimiento.</p>
-      </div>
-    </div>
-  </div>
+    <div class="notice info">Si intentas hacer algo que tu rol no permite, el sistema muestra un aviso. Pide al administrador que ajuste tu nivel de acceso.</div>
+  </section>
 
-  <div class="alerta">
-    Si al completar aparece el error <strong>"Stock insuficiente para [producto]"</strong>, primero regresa a <em>Movimientos</em> y registra una entrada de ese insumo.
-  </div>
+  <!-- ── GLOSARIO ── -->
+  <section id="glosario">
+    <div class="section-label">11 — Referencia</div>
+    <h2>Glosario</h2>
+    <p class="section-sub">Qué significa cada término del sistema.</p>
+    <hr class="section-rule">
+    <dl class="glosario">
+      <div class="glosario-item"><dt>Materia Prima</dt><dd>Insumo base comprado al proveedor: harinas, aceite, papas, pellets, condimentos.</dd></div>
+      <div class="glosario-item"><dt>Material de Empaque</dt><dd>Bolsas, etiquetas, cajas y sellos usados para envasar.</dd></div>
+      <div class="glosario-item"><dt>Producto a Granel</dt><dd>Producto ya procesado en cocina pero sin envasar.</dd></div>
+      <div class="glosario-item"><dt>Producto Terminado</dt><dd>Producto envasado, listo para vender al cliente.</dd></div>
+      <div class="glosario-item"><dt>Orden de Producción</dt><dd>Documento que registra qué insumos se usaron y qué se fabricó en un ciclo de producción.</dd></div>
+      <div class="glosario-item"><dt>Nota de Venta</dt><dd>Documento de venta a un cliente: productos, precios y totales.</dd></div>
+      <div class="glosario-item"><dt>Embarque</dt><dd>Acción final: el producto sale del almacén y el stock se descuenta.</dd></div>
+      <div class="glosario-item"><dt>Stock Mínimo</dt><dd>Nivel de alerta. Cuando el stock llega a este número el sistema avisa que hay que reponer.</dd></div>
+      <div class="glosario-item"><dt>Ajuste de inventario</dt><dd>Corrección manual cuando el conteo físico no coincide con el sistema.</dd></div>
+      <div class="glosario-item"><dt>Valuación</dt><dd>Valor total del inventario en dinero (stock × costo de cada producto).</dd></div>
+      <div class="glosario-item"><dt>Familia / Categoría</dt><dd>Grupo al que pertenece un producto (Churros, Papas, Palomitas…).</dd></div>
+      <div class="glosario-item"><dt>Folio</dt><dd>Número consecutivo que identifica una orden o nota (PROD-0001, VTA-0023).</dd></div>
+      <div class="glosario-item"><dt>Borrador</dt><dd>Estado inicial de una orden o nota. No afecta inventario. Se puede editar o cancelar.</dd></div>
+    </dl>
+  </section>
 
-  <div class="tip">
-    El botón "Iniciar producción" es opcional — sirve para cambiar el estado a <em>En proceso</em> mientras la cocina trabaja. Puedes saltarlo y completar directo cuando todo esté listo.
-  </div>
-</section>
-
-<!-- ─────────────────────────── ENVASADO ──────────────────────────────────── -->
-<section id="envasado">
-  <div class="section-head">
-    <div class="section-icon ic-blue">📦</div>
-    <div><h2>Orden de producción (Envasado)</h2><p>Cuando el área de envasado empaca el producto a granel</p></div>
-  </div>
-
-  <p style="font-size:.85rem;color:#64748b;margin-bottom:1rem">
-    El proceso es idéntico al de cocina, pero con área <strong>Envasado</strong> y diferentes insumos y productos.
-  </p>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <h3>Crea una nueva orden de producción</h3>
-        <p>Área: <strong>Envasado</strong>.</p>
-        <span class="where">Menú → Producción → + Nueva orden</span>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <h3>Insumos típicos del área de envasado</h3>
-        <p>• Producto a granel (churros, papas, etc.) — lo que se va a envasar.<br>
-           • Bolsas o fundas de presentación (50g, 100g, 200g…).<br>
-           • Etiquetas.<br>
-           • Cajas de cartón.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <h3>Producto generado</h3>
-        <p>El producto <strong>terminado</strong> ya empacado y listo para venta (ej. "Churros 100g bolsa x 12").</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <h3>Completar la orden</h3>
-        <p>Clic en <strong>"✓ Completar y afectar inventario"</strong>. El granel baja, el empaque baja, el producto terminado sube.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="tip">Después del envasado ya tienes producto terminado disponible para vender.</div>
-</section>
-
-<!-- ─────────────────────────── VENTA ─────────────────────────────────────── -->
-<section id="venta">
-  <div class="section-head">
-    <div class="section-icon ic-green">🧾</div>
-    <div><h2>Nota de venta</h2><p>Registrar una venta y descontar el producto terminado del almacén</p></div>
-  </div>
-
-  <div class="flow" style="margin-bottom:1rem">
-    <div class="flow-step orange">
-      <div class="num">ESTADO 1</div>
-      <div class="lbl">Borrador</div>
-      <div class="sub">cotización</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step blue">
-      <div class="num">ESTADO 2</div>
-      <div class="lbl">Confirmada</div>
-      <div class="sub">venta acordada</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step green">
-      <div class="num">ESTADO 3</div>
-      <div class="lbl">🚚 Embarcada</div>
-      <div class="sub">salió del almacén</div>
-    </div>
-  </div>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <h3>Ve al módulo de Notas de Venta</h3>
-        <span class="where">Menú → Notas de Venta</span>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <h3>Haz clic en "+ Nueva nota"</h3>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <h3>Captura los datos del cliente</h3>
-        <p>Nombre, teléfono y dirección de entrega (todos opcionales excepto el nombre).</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <h3>Agrega los productos</h3>
-        <p>Clic en <strong>"+ Agregar producto"</strong>. Busca el producto terminado, indica la cantidad. El precio se rellena solo con el precio de catálogo. Puedes modificarlo si hay un precio especial para este cliente.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">5</div>
-      <div class="step-body">
-        <h3>Aplica descuento si corresponde</h3>
-        <p>Campo <strong>Descuento (%)</strong> — el total se recalcula automáticamente.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">6</div>
-      <div class="step-body">
-        <h3>Guarda la nota</h3>
-        <p>Queda en <strong>Borrador</strong>. El inventario NO se ha descontado todavía.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">7</div>
-      <div class="step-body">
-        <h3>Confirmar la nota (opcional)</h3>
-        <p>Clic en <strong>"Confirmar"</strong> cuando el cliente haya aceptado. La nota pasa a estado <em>Confirmada</em>. El inventario todavía no baja.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">8</div>
-      <div class="step-body">
-        <h3>Embarcar: desconta el inventario</h3>
-        <p>Cuando el pedido sale físicamente del almacén, haz clic en <strong>"Embarcar y descontar inventario"</strong>. En ese momento el stock de cada producto baja automáticamente y se genera un movimiento de salida.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="alerta">
-    Solo se puede embarcar si hay suficiente stock de producto terminado. Si falta inventario, el sistema lo indicará — revisa si hay órdenes de envasado pendientes de completar.
-  </div>
-
-  <div class="tip">Puedes cancelar una nota en cualquier momento antes de embarcarla, sin que el inventario se vea afectado.</div>
-</section>
-
-<!-- ─────────────────────────── MOVIMIENTOS ───────────────────────────────── -->
-<section id="movimientos">
-  <div class="section-head">
-    <div class="section-icon ic-gray">📋</div>
-    <div><h2>Movimientos de inventario</h2><p>Historial completo y ajustes manuales</p></div>
-  </div>
-
-  <table class="quick-table">
-    <thead>
-      <tr><th>Tipo</th><th>Cuándo usarlo</th><th>Efecto en stock</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong style="color:#166534">🟢 Entrada</strong></td>
-        <td>Llegó mercancía del proveedor (materia prima, empaque)</td>
-        <td>Stock sube</td>
-      </tr>
-      <tr>
-        <td><strong style="color:#991b1b">🔴 Salida</strong></td>
-        <td>Se retiró producto sin ser una venta (merma, donación, consumo interno)</td>
-        <td>Stock baja</td>
-      </tr>
-      <tr>
-        <td><strong style="color:#1e40af">🔵 Ajuste</strong></td>
-        <td>Conteo físico no coincide con el sistema — corrección de inventario</td>
-        <td>Stock queda en el valor capturado</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="nota" style="margin-top:.85rem">
-    Las entradas y salidas generadas automáticamente por la producción y las ventas también aparecen en este historial — no las creaste tú, las creó el sistema.
-  </div>
-
-  <div class="steps" style="margin-top:.85rem">
-    <div class="step">
-      <div class="step-num">📅</div>
-      <div class="step-body">
-        <h3>Ver el historial</h3>
-        <p>En la pantalla de Movimientos puedes ver todos los cambios de stock ordenados por fecha, con quién lo registró, cantidad anterior y nueva.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">✏️</div>
-      <div class="step-body">
-        <h3>Hacer un ajuste manual</h3>
-        <p>Haz clic en <strong>"+ Registrar movimiento"</strong>, elige tipo <strong>Ajuste</strong>, selecciona el producto, ingresa la cantidad correcta y describe el motivo (ej. "Conteo físico 15-jun").</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─────────────────────────── CATÁLOGO ──────────────────────────────────── -->
-<section id="catalogo">
-  <div class="section-head">
-    <div class="section-icon ic-purple">🗂️</div>
-    <div><h2>Catálogo de productos</h2><p>Administrar productos, familias y proveedores</p></div>
-  </div>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">📦</div>
-      <div class="step-body">
-        <h3>Productos</h3>
-        <p>Aquí están los ~150 productos cargados del catálogo HEBI. Puedes buscar por nombre, filtrar por familia o estado. Para agregar un nuevo producto haz clic en <strong>"+ Nuevo producto"</strong>.</p>
-        <p style="margin-top:.35rem">Campos importantes:</p>
-        <p>• <strong>Tipo de producto</strong>: materia prima / material de empaque / granel / terminado.<br>
-           • <strong>Stock mínimo</strong>: cuando el stock baje de este número aparecerá alerta en el Dashboard.<br>
-           • <strong>Precio de venta</strong>: se precarga automáticamente en las notas de venta.</p>
-        <span class="where">Menú → Productos</span>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">🏷️</div>
-      <div class="step-body">
-        <h3>Familias (categorías)</h3>
-        <p>Grupos de productos: Churros, Papas, Palomitas, Chicharrón, etc. Se usan para filtrar y organizar. Puedes crear nuevas familias según el negocio crezca.</p>
-        <span class="where">Menú → Familias</span>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">🏢</div>
-      <div class="step-body">
-        <h3>Proveedores</h3>
-        <p>Lista de quienes te surten. Se asocian a los movimientos de entrada para llevar el rastro de cada compra.</p>
-        <span class="where">Menú → Proveedores</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─────────────────────────── REPORTES ──────────────────────────────────── -->
-<section id="reportes">
-  <div class="section-head">
-    <div class="section-icon ic-blue">📈</div>
-    <div><h2>Reportes</h2><p>Análisis del inventario y alertas</p></div>
-  </div>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">💰</div>
-      <div class="step-body">
-        <h3>Valuación de inventario</h3>
-        <p>Tabla con cada producto: cuánto stock hay y cuánto vale en dinero (stock × costo). Al final muestra el total del inventario.</p>
-        <span class="where">Menú → Reportes</span>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">⚠️</div>
-      <div class="step-body">
-        <h3>Alerta de stock bajo</h3>
-        <p>Lista de productos que ya están en el mínimo o por debajo. Útil para planear las compras de la semana.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">📋</div>
-      <div class="step-body">
-        <h3>Historial de movimientos</h3>
-        <p>Puedes filtrar por fechas, tipo de movimiento o producto para ver el detalle de cualquier período.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─────────────────────────── ROLES ─────────────────────────────────────── -->
-<section id="roles">
-  <div class="section-head">
-    <div class="section-icon ic-purple">👥</div>
-    <div><h2>¿Qué puede hacer cada usuario?</h2><p>Permisos según rol asignado</p></div>
-  </div>
-
-  <div class="rol-grid">
-    <div class="rol-card admin">
-      <h3>👑 Administrador</h3>
-      <ul>
-        <li>Todo lo del sistema</li>
-        <li>Crear y gestionar usuarios</li>
-        <li>Desactivar productos y familias</li>
-        <li>Configurar el catálogo</li>
-        <li>Ver valuación de inventario</li>
-        <li>Embarcar notas de venta</li>
-      </ul>
-    </div>
-    <div class="rol-card manager">
-      <h3>🧑‍💼 Manager</h3>
-      <ul>
-        <li>Crear y editar productos</li>
-        <li>Crear y editar familias</li>
-        <li>Crear y editar proveedores</li>
-        <li>Completar órdenes de producción</li>
-        <li>Embarcar notas de venta</li>
-        <li>Ver valuación de inventario</li>
-      </ul>
-    </div>
-    <div class="rol-card employee">
-      <h3>👷 Empleado</h3>
-      <ul>
-        <li>Ver productos y stock</li>
-        <li>Registrar movimientos de entrada/salida/ajuste</li>
-        <li>Crear notas de venta (borrador)</li>
-        <li>Confirmar notas de venta</li>
-        <li>Ver historial de movimientos</li>
-        <li>Ver reportes básicos</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="nota" style="margin-top:.85rem">
-    Si intentas hacer algo que tu rol no permite, el sistema te mostrará un aviso. Pide al administrador que ajuste tu nivel de acceso si necesitas más permisos.
-  </div>
-</section>
-
-<!-- ─────────────────────────── GLOSARIO ──────────────────────────────────── -->
-<section id="glosario">
-  <div class="section-head">
-    <div class="section-icon ic-gray">📖</div>
-    <div><h2>Glosario de términos</h2><p>Qué significa cada palabra del sistema</p></div>
-  </div>
-
-  <dl class="glosario">
-    <dt><strong>Materia Prima</strong><span>Insumo base que se compra a proveedores: harinas, aceite, papas, pellets, condimentos, etc.</span></dt>
-    <dt><strong>Material de Empaque</strong><span>Todo lo que se usa para envasar: bolsas, etiquetas, cajas de cartón, sellos.</span></dt>
-    <dt><strong>Producto a Granel</strong><span>Producto ya procesado en cocina pero sin envasar: churros sueltos, papas fritas sin bolsa.</span></dt>
-    <dt><strong>Producto Terminado</strong><span>Producto envasado y listo para vender al cliente.</span></dt>
-    <dt><strong>Orden de Producción</strong><span>Documento que registra qué se usó (insumos) y qué se fabricó (productos) en un ciclo de producción.</span></dt>
-    <dt><strong>Nota de Venta</strong><span>Documento que registra la venta a un cliente: qué se vendió, a qué precio y cuánto pagó.</span></dt>
-    <dt><strong>Embarque</strong><span>Acción final de la venta: el producto sale físicamente del almacén y el stock se descuenta.</span></dt>
-    <dt><strong>Movimiento de Inventario</strong><span>Registro de cualquier cambio en el stock: entrada, salida o ajuste manual.</span></dt>
-    <dt><strong>Stock Mínimo</strong><span>Cantidad de alerta. Cuando el stock llega a este nivel, el sistema avisa que hay que reponer.</span></dt>
-    <dt><strong>Valuación</strong><span>El valor en dinero de todo el inventario (stock de cada producto × su costo).</span></dt>
-    <dt><strong>Ajuste de inventario</strong><span>Corrección manual del stock cuando el conteo físico no coincide con lo que dice el sistema.</span></dt>
-    <dt><strong>Familia / Categoría</strong><span>Grupo al que pertenece un producto (Churros, Papas, Palomitas, Chicharrón, etc.).</span></dt>
-    <dt><strong>Folio</strong><span>Número consecutivo que identifica una orden de producción o nota de venta (ej. PROD-0001, VTA-0023).</span></dt>
-    <dt><strong>Borrador</strong><span>Estado inicial de una orden o nota. No ha afectado al inventario todavía. Se puede editar o cancelar.</span></dt>
-  </dl>
-</section>
-
-<!-- ─────────────────────────── CONSEJOS ──────────────────────────────────── -->
-<section>
-  <div class="section-head">
-    <div class="section-icon ic-green">💡</div>
-    <div><h2>Consejos de uso diario</h2></div>
-  </div>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">☀️</div>
-      <div class="step-body">
+  <!-- ── CONSEJOS ── -->
+  <section>
+    <div class="section-label">12 — Buenas prácticas</div>
+    <h2>Consejos de operación diaria</h2>
+    <hr class="section-rule">
+    <div class="tips">
+      <div class="tip-card">
+        <div class="tip-ico">☀️</div>
         <h3>Al empezar el día</h3>
-        <p>Revisa el <strong>Dashboard</strong>. Si hay productos con stock bajo, planea las compras antes de arrancar la producción.</p>
+        <p>Revisa el Dashboard. Si hay productos con stock bajo, planea las compras antes de iniciar producción.</p>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">🛒</div>
-      <div class="step-body">
+      <div class="tip-card">
+        <div class="tip-ico">🛒</div>
         <h3>Cuando llegue mercancía</h3>
-        <p>Registra la entrada <strong>inmediatamente</strong> antes de usarla en producción. Así el sistema siempre refleja la realidad.</p>
+        <p>Registra la entrada inmediatamente, antes de usarla. Así el sistema refleja siempre la realidad.</p>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">🏭</div>
-      <div class="step-body">
-        <h3>Al terminar un lote de producción</h3>
-        <p>Completa la orden de producción en el sistema el mismo día que se fabricó. No dejes órdenes acumuladas para después.</p>
+      <div class="tip-card">
+        <div class="tip-ico">🏭</div>
+        <h3>Al terminar un lote</h3>
+        <p>Completa la orden de producción el mismo día. No dejes órdenes acumuladas para después.</p>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">📦</div>
-      <div class="step-body">
+      <div class="tip-card">
+        <div class="tip-ico">📋</div>
         <h3>Conteo semanal</h3>
-        <p>Una vez a la semana haz un conteo físico rápido. Si encuentras diferencias, usa un <strong>Ajuste de inventario</strong> con el motivo "Conteo físico [fecha]".</p>
+        <p>Si encuentras diferencias con el físico, usa un Ajuste de inventario con nota "Conteo físico [fecha]".</p>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">🚚</div>
-      <div class="step-body">
+      <div class="tip-card">
+        <div class="tip-ico">🚚</div>
         <h3>Al despachar un pedido</h3>
-        <p>Embarca la nota de venta en el momento exacto que el producto sale del almacén, no antes ni después.</p>
+        <p>Embarca la nota en el momento exacto que el producto sale del almacén, no antes ni después.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-ico">🔑</div>
+        <h3>Cambiar contraseña</h3>
+        <p>Hazlo en tu primer acceso. Ve a tu perfil en la esquina superior derecha → Cambiar contraseña.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
 </main>
 
 <footer>
-  Manual de Usuario · Sistema de Inventario BOTANAS HEBI · 2026<br>
-  Para soporte técnico contacta al administrador del sistema.
+  Manual de Usuario · <span>Botanas HEBI</span> · Sistema de Inventario · 2026
 </footer>
 
 </body>

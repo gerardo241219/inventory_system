@@ -6,7 +6,7 @@ import {
   shipSaleOrder,
   cancelSaleOrder,
 } from './salesSlice';
-import type { SaleOrder, SaleOrderStatus } from '@/types';
+import type { SaleOrderStatus } from '@/types';
 import SaleOrderForm from './SaleOrderForm';
 
 const statusColor: Record<SaleOrderStatus, string> = {

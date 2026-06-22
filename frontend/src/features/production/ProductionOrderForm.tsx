@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { createProductionOrder } from './productionSlice';

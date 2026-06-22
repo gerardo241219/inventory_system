@@ -3,683 +3,588 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flujo de trabajo — Sistema de Inventario BOTANAS HEBI</title>
+  <title>Flujo del sistema — Botanas HEBI</title>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <style>
+    :root {
+      --orange:  #F97316;
+      --red:     #B91C1C;
+      --yellow:  #FCD34D;
+      --dark:    #111827;
+      --mid:     #6B7280;
+      --light:   #F3F4F6;
+      --border:  #E5E7EB;
+      --white:   #FFFFFF;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; }
 
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--white);
+      color: var(--dark);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ─── HEADER ─── */
     header {
-      background: linear-gradient(135deg, #1e3a8a 0%, #ea580c 100%);
-      color: white; padding: 2rem 3rem;
+      background: var(--orange);
+      padding: 3rem 4rem 2.5rem;
+      border-bottom: 4px solid var(--red);
     }
-    header h1 { font-size: 1.75rem; font-weight: 700; }
-    header p  { margin-top: .4rem; opacity: .85; font-size: .95rem; }
+    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 1.5rem; }
+    .header-badge {
+      background: var(--red); color: var(--yellow);
+      font-size: 1.5rem; font-weight: 900;
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; letter-spacing: -1px;
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; color: var(--white); }
+    header p  { color: rgba(255,255,255,.8); font-size: .88rem; margin-top: .2rem; }
 
+    /* ─── NAV ─── */
     nav {
-      background: white; border-bottom: 1px solid #e2e8f0;
-      display: flex; gap: .25rem; padding: .75rem 2rem; flex-wrap: wrap;
-      position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      background: var(--dark);
+      padding: .5rem 4rem;
+      position: sticky; top: 0; z-index: 100;
     }
+    .nav-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: .1rem; flex-wrap: wrap; }
     nav a {
-      padding: .4rem .9rem; border-radius: 6px; text-decoration: none;
-      font-size: .82rem; font-weight: 500; color: #475569;
-      transition: background .15s, color .15s;
+      color: rgba(255,255,255,.6);
+      text-decoration: none; font-size: .78rem; font-weight: 500;
+      padding: .4rem .75rem; border-radius: 4px;
+      transition: color .15s, background .15s;
     }
-    nav a:hover { background: #f1f5f9; color: #1e3a8a; }
+    nav a:hover { color: var(--yellow); background: rgba(255,255,255,.07); }
 
-    main { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem; }
+    /* ─── MAIN ─── */
+    main { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 4rem; }
 
-    section { margin-bottom: 3.5rem; }
-    section h2 {
-      font-size: 1.25rem; font-weight: 700; color: #1e3a8a;
-      border-left: 4px solid #ea580c; padding-left: .75rem;
-      margin-bottom: .4rem;
+    /* ─── SECCIÓN ─── */
+    section { margin-bottom: 3.5rem; scroll-margin-top: 56px; }
+    .section-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--orange); margin-bottom: .4rem;
     }
-    section > p { color: #64748b; font-size: .9rem; margin-bottom: 1.25rem; }
+    section h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: .3rem; }
+    .section-sub { font-size: .83rem; color: var(--mid); margin-bottom: 1.25rem; }
+    hr.rule { border: none; border-top: 1px solid var(--border); margin-bottom: 1.5rem; }
 
-    .mermaid {
-      background: white; border: 1px solid #e2e8f0; border-radius: 12px;
-      padding: 1.5rem; overflow-x: auto;
+    /* ─── MERMAID WRAPPER ─── */
+    .diagram {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      background: var(--white);
     }
 
-    /* paso a paso */
-    .steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .step {
-      background: white; border: 1px solid #e2e8f0; border-radius: 10px;
-      padding: 1rem 1.2rem; display: flex; gap: .85rem; align-items: flex-start;
-    }
-    .step-num {
-      width: 30px; height: 30px; border-radius: 50%; background: #1e3a8a;
-      color: white; font-size: .8rem; font-weight: 700;
+    /* ─── SETUP STEPS ─── */
+    .setup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .75rem; }
+    .setup-card { border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; gap: .85rem; }
+    .setup-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--orange); color: white;
+      font-size: .78rem; font-weight: 800;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .step-body h3 { font-size: .9rem; font-weight: 600; color: #1e293b; }
-    .step-body p  { font-size: .8rem; color: #64748b; margin-top: .2rem; line-height: 1.45; }
+    .setup-body h3 { font-size: .85rem; font-weight: 700; }
+    .setup-body p  { font-size: .78rem; color: var(--mid); margin-top: .2rem; }
 
-    /* tabla de endpoints */
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
-    th { background: #1e3a8a; color: white; text-align: left; padding: .65rem 1rem; font-size: .82rem; }
-    td { padding: .6rem 1rem; font-size: .82rem; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8fafc; }
-    code { background: #f1f5f9; padding: .15rem .4rem; border-radius: 4px; font-size: .78rem; color: #0f172a; }
-    .badge {
-      display: inline-block; padding: .15rem .45rem; border-radius: 4px;
-      font-size: .7rem; font-weight: 600; letter-spacing: .03em;
+    /* ─── NOTICE ─── */
+    .notice {
+      font-size: .83rem; line-height: 1.6;
+      padding: .8rem 1rem; border-radius: 6px; margin-top: 1rem;
+      border-left: 3px solid;
     }
-    .get    { background: #dcfce7; color: #166534; }
-    .post   { background: #dbeafe; color: #1e40af; }
-    .patch  { background: #fef9c3; color: #854d0e; }
-    .delete { background: #fee2e2; color: #991b1b; }
+    .notice.warn { background: #FFF7ED; border-color: var(--orange); color: #7C2D12; }
+    .notice.info { background: #F0F9FF; border-color: #38BDF8; color: #0C4A6E; }
 
-    /* roles */
-    .roles { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1rem; }
-    .role-card {
-      flex: 1; min-width: 200px; background: white;
-      border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.1rem 1.3rem;
+    /* ─── STATUS GRID ─── */
+    .status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .75rem; }
+    .status-card { border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+    .status-card h3 { font-size: .83rem; font-weight: 700; margin-bottom: .6rem; }
+    .flow-row { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+    .st {
+      font-size: .72rem; font-weight: 600; padding: .2rem .6rem;
+      border-radius: 20px; border: 1px solid var(--border);
     }
-    .role-card h3 { font-size: .9rem; font-weight: 700; margin-bottom: .5rem; }
-    .role-card.admin h3  { color: #7c3aed; }
-    .role-card.manager h3 { color: #1d4ed8; }
-    .role-card.employee h3 { color: #0891b2; }
-    .role-card ul { padding-left: 1.1rem; font-size: .8rem; color: #475569; line-height: 1.8; }
+    .st.gray   { background: var(--light);  color: var(--mid); }
+    .st.orange { background: #FFF7ED; color: #C2410C; border-color: #FED7AA; }
+    .st.green  { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+    .st.red    { background: #FEF2F2; color: var(--red); border-color: #FECACA; }
+    .arr { color: var(--border); }
 
-    /* alert box */
-    .alert {
-      background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px;
-      padding: .85rem 1.1rem; font-size: .85rem; color: #9a3412; margin-top: 1rem;
+    /* ─── ROLE GRID ─── */
+    .rol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .75rem; }
+    .rol-card { border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+    .rol-card h3 { font-size: .85rem; font-weight: 700; margin-bottom: .6rem; }
+    .rol-card ul { list-style: none; padding: 0; }
+    .rol-card li { font-size: .78rem; color: #374151; padding: .2rem 0; border-bottom: 1px solid var(--border); }
+    .rol-card li:last-child { border-bottom: none; }
+    .rol-card li::before { content: "· "; color: var(--orange); font-weight: 700; }
+    .rol-card.admin   { border-top: 3px solid var(--red); }
+    .rol-card.manager { border-top: 3px solid var(--orange); }
+    .rol-card.employee{ border-top: 3px solid #D97706; }
+
+    /* ─── API TABLE ─── */
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    thead th {
+      text-align: left; font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; color: var(--mid);
+      padding: .5rem 1rem; border-bottom: 2px solid var(--border);
     }
-    .alert strong { display: block; margin-bottom: .2rem; }
+    tbody td { padding: .65rem 1rem; font-size: .8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    .group-row td { background: var(--light); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--mid); padding: .4rem 1rem; }
+    code { background: var(--light); padding: .15rem .45rem; border-radius: 4px; font-size: .75rem; }
+    .badge { display: inline-block; padding: .15rem .5rem; border-radius: 4px; font-size: .68rem; font-weight: 700; letter-spacing: .04em; }
+    .get    { background: #DCFCE7; color: #166534; }
+    .post   { background: #DBEAFE; color: #1E40AF; }
+    .patch  { background: #FEF9C3; color: #854D0E; }
+    .del    { background: #FEE2E2; color: var(--red); }
 
-    /* status badges table */
-    .status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .status-card {
-      background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem 1.2rem;
-    }
-    .status-card h3 { font-size: .85rem; font-weight: 700; color: #334155; margin-bottom: .6rem; }
-    .status-flow { display: flex; gap: .35rem; align-items: center; flex-wrap: wrap; }
-    .s { padding: .2rem .5rem; border-radius: 4px; font-size: .73rem; font-weight: 600; }
-    .s.gray  { background: #f1f5f9; color: #475569; }
-    .s.blue  { background: #dbeafe; color: #1e40af; }
-    .s.green { background: #dcfce7; color: #166534; }
-    .s.red   { background: #fee2e2; color: #991b1b; }
-    .arr { color: #94a3b8; font-size: .8rem; }
-
-    footer { text-align: center; color: #94a3b8; font-size: .8rem; padding: 2rem; }
+    /* ─── FOOTER ─── */
+    footer { text-align: center; font-size: .75rem; color: var(--mid); padding: 2rem; border-top: 1px solid var(--border); }
+    footer span { color: var(--orange); font-weight: 600; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>📦 Sistema de Inventario — BOTANAS HEBI</h1>
-  <p>Flujo de trabajo completo · Producción de frituras · Adaptable a otros negocios</p>
+  <div class="header-inner">
+    <div class="header-badge">HB</div>
+    <div>
+      <h1>Flujo del sistema</h1>
+      <p>Botanas HEBI · Documentación técnica y operativa · 2026</p>
+    </div>
+  </div>
 </header>
 
 <nav>
-  <a href="#inicio">🚀 Inicio</a>
-  <a href="#proceso">🏭 Proceso productivo</a>
-  <a href="#flujo-principal">🔄 Flujo principal</a>
-  <a href="#produccion">⚙️ Producción</a>
-  <a href="#ventas">🧾 Ventas</a>
-  <a href="#inventario">📦 Inventario</a>
-  <a href="#auth">🔐 Autenticación</a>
-  <a href="#roles">👥 Roles</a>
-  <a href="#estados">🏷️ Estados</a>
-  <a href="#api">📡 API</a>
-  <a href="#bd">🗄️ Base de datos</a>
+  <div class="nav-inner">
+    <a href="#inicio">Inicio</a>
+    <a href="#proceso">Proceso productivo</a>
+    <a href="#flujo">Flujo operativo</a>
+    <a href="#produccion">Producción</a>
+    <a href="#ventas">Ventas</a>
+    <a href="#inventario">Inventario</a>
+    <a href="#auth">Autenticación</a>
+    <a href="#roles">Roles</a>
+    <a href="#estados">Estados</a>
+    <a href="#api">API</a>
+    <a href="#bd">Base de datos</a>
+  </div>
 </nav>
 
 <main>
 
-<!-- ───────────────────────────── INICIO ──────────────────────────────────── -->
-<section id="inicio">
-  <h2>🚀 Configuración inicial</h2>
-  <p>Pasos para levantar el sistema por primera vez.</p>
+  <!-- ── CONFIGURACIÓN INICIAL ── -->
+  <section id="inicio">
+    <div class="section-label">01 — Setup</div>
+    <h2>Configuración inicial</h2>
+    <p class="section-sub">Pasos para levantar el sistema por primera vez.</p>
+    <hr class="rule">
+    <div class="setup-grid">
+      <div class="setup-card">
+        <div class="setup-num">1</div>
+        <div class="setup-body"><h3>Base de datos MySQL</h3><p>Crear <code>inventory_db</code> y configurar credenciales en <code>backend/.env</code></p></div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">2</div>
+        <div class="setup-body"><h3>Instalar dependencias</h3><p><code>cd backend &amp;&amp; npm install</code><br><code>cd frontend &amp;&amp; npm install</code></p></div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">3</div>
+        <div class="setup-body"><h3>Correr el seeder</h3><p><code>npm run seed</code> — carga BOTANAS HEBI, 16 familias y ~150 productos.</p></div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">4</div>
+        <div class="setup-body"><h3>Iniciar servidores</h3><p>Backend: <code>npm run dev</code> (4000)<br>Frontend: <code>npm run dev</code> (5173)</p></div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">5</div>
+        <div class="setup-body"><h3>Primer acceso</h3><p><code>admin@botanashebi.com</code><br><code>Admin1234!</code></p></div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">6</div>
+        <div class="setup-body"><h3>Configurar productos</h3><p>Asignar <code>productType</code>: materia_prima / empaque / granel / terminado.</p></div>
+      </div>
+    </div>
+  </section>
 
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <h3>Crear base de datos MySQL</h3>
-        <p>Crear la BD <code>inventory_db</code> en MySQL. Configurar credenciales en <code>backend/.env</code></p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <h3>Instalar dependencias</h3>
-        <p><code>cd backend &amp;&amp; npm install</code><br><code>cd frontend &amp;&amp; npm install</code></p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <h3>Correr el seeder</h3>
-        <p><code>npm run seed</code> — carga BOTANAS HEBI, 16 familias, ~150 productos y el usuario admin.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <h3>Iniciar servidores</h3>
-        <p>Backend: <code>npm run dev</code> (puerto 4000)<br>Frontend: <code>npm run dev</code> (puerto 5173)</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">5</div>
-      <div class="step-body">
-        <h3>Primer acceso</h3>
-        <p>Email: <code>admin@botanashebi.com</code><br>Password: <code>Admin1234!</code></p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">6</div>
-      <div class="step-body">
-        <h3>Configurar productos</h3>
-        <p>Asignar <code>productType</code> a cada producto: materia_prima / material_empaque / granel / terminado</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─────────────────────────── PROCESO PRODUCTIVO ────────────────────────── -->
-<section id="proceso">
-  <h2>🏭 Proceso productivo de la empresa</h2>
-  <p>Basado en el diagrama de planta de BOTANAS HEBI (proceso.pdf).</p>
-
-  <div class="mermaid">
+  <!-- ── PROCESO PRODUCTIVO ── -->
+  <section id="proceso">
+    <div class="section-label">02 — Planta</div>
+    <h2>Proceso productivo</h2>
+    <p class="section-sub">Flujo de planta de Botanas HEBI basado en proceso.pdf.</p>
+    <hr class="rule">
+    <div class="diagram">
+      <div class="mermaid">
 flowchart LR
-    MP["① Materia Prima\n(Almacén)\nHarinas, Aceite,\nPellet, Papas, etc."]
+    MP["Materia Prima\nAlmacén\nHarinas · Aceite · Papas"]
+    CC["Cocina Churros"]
+    CP["Cocina Papas"]
+    BG["Producto a Granel\nAlmacén intermedio"]
+    EN["Envasado\nGranel + Bolsas + Etiquetas"]
+    PT["Producto Terminado\nEmpacado y listo"]
+    EMB["Embarque\nNota de Venta"]
 
-    CC["② Cocina Churros\nHarina de trigo/maíz\n+ aceite + condimentos"]
-    CP["② Cocina Papas\nPapas naturales\n+ aceite + condimentos"]
-
-    BG["③ Producto a Granel\n(Almacén intermedio)\nChurros, papas, chicharrón\nsin envasar"]
-
-    EN["④ Área de Envasado\nGranel + bolsas + etiquetas\n+ cajas de cartón"]
-
-    PT["⑤ Producto Terminado\nProducto empacado\nlisto para venta"]
-
-    EMB["🚚 Embarque\nNota de Venta\n→ Cliente"]
-
-    MP -->|"Orden Producción\nCocina Churros"| CC
-    MP -->|"Orden Producción\nCocina Papas"| CP
-    CC -->|"Producto generado"| BG
-    CP -->|"Producto generado"| BG
+    MP -->|"OP Cocina Churros"| CC
+    MP -->|"OP Cocina Papas"| CP
+    CC --> BG
+    CP --> BG
     MP -->|"Material de empaque"| EN
-    BG -->|"Granel listo"| EN
-    EN -->|"Orden Producción\nEnvasado"| PT
-    PT -->|"Nota de Venta\n[Embarcar]"| EMB
+    BG --> EN
+    EN -->|"OP Envasado"| PT
+    PT -->|"Nota de Venta"| EMB
+      </div>
+    </div>
+  </section>
 
-    style MP fill:#fef9c3,stroke:#ca8a04
-    style CC fill:#fed7aa,stroke:#ea580c
-    style CP fill:#fed7aa,stroke:#ea580c
-    style BG fill:#e0f2fe,stroke:#0284c7
-    style EN fill:#f0fdf4,stroke:#16a34a
-    style PT fill:#dcfce7,stroke:#16a34a
-    style EMB fill:#ede9fe,stroke:#7c3aed
-  </div>
-</section>
-
-<!-- ─────────────────────────── FLUJO PRINCIPAL ───────────────────────────── -->
-<section id="flujo-principal">
-  <h2>🔄 Flujo operativo completo</h2>
-  <p>Ciclo de vida de un lote desde la compra de materia prima hasta la venta.</p>
-
-  <div class="mermaid">
+  <!-- ── FLUJO OPERATIVO ── -->
+  <section id="flujo">
+    <div class="section-label">03 — Ciclo completo</div>
+    <h2>Flujo operativo</h2>
+    <p class="section-sub">De la compra de materia prima hasta el embarque al cliente.</p>
+    <hr class="rule">
+    <div class="diagram">
+      <div class="mermaid">
 sequenceDiagram
     actor U as Usuario
-    participant FE as Frontend (React)
-    participant API as Backend (Express)
+    participant FE as Frontend
+    participant API as Backend
     participant DB as MySQL
 
-    Note over U,DB: ① COMPRA DE MATERIA PRIMA
-    U->>FE: Inventario → + Registrar movimiento
-    FE->>API: POST /api/inventory/movements\n{ type: "entrada", productId, quantity, cost, supplierId }
-    API->>DB: UPDATE products SET stock = stock + qty\nINSERT INTO InventoryMovements
-    DB-->>API: OK
-    API-->>FE: Movimiento creado
-    FE-->>U: Stock actualizado ✓
+    Note over U,DB: Compra de Materia Prima
+    U->>FE: Movimientos → + Registrar (Entrada)
+    FE->>API: POST /api/inventory/movements
+    API->>DB: stock += qty · INSERT InventoryMovement
+    DB-->>FE: OK
 
-    Note over U,DB: ② ORDEN DE PRODUCCIÓN (Cocina)
-    U->>FE: Producción → + Nueva orden (Cocina Churros / Papas)
-    FE->>API: POST /api/production\n{ area, items:[{productId, itemType:"input/output", qty}] }
+    Note over U,DB: Producción — Cocina
+    U->>FE: Producción → + Nueva orden (Cocina)
+    FE->>API: POST /api/production
     API->>DB: INSERT ProductionOrder + Items
-    DB-->>API: Orden creada (borrador)
-    U->>FE: Clic "Completar y afectar inventario"
+    U->>FE: Completar y afectar inventario
     FE->>API: PATCH /api/production/:id/complete
-    API->>DB: Transacción:\n- stock -= qty (inputs)\n- stock += qty (outputs)\n- INSERT InventoryMovements
-    DB-->>API: Completado
-    API-->>FE: Orden completada ✓
+    API->>DB: stock -= inputs · stock += outputs · INSERT Movements
+    DB-->>FE: Completado
 
-    Note over U,DB: ③ ORDEN DE PRODUCCIÓN (Envasado)
+    Note over U,DB: Producción — Envasado
     U->>FE: Producción → + Nueva orden (Envasado)
-    Note right of U: inputs: granel + bolsas + etiquetas\noutputs: producto terminado
     FE->>API: POST /api/production + PATCH .../complete
-    API->>DB: Descuenta granel y empaque\nSuma producto terminado
-    DB-->>API: OK
+    API->>DB: stock -= granel/empaque · stock += terminado
+    DB-->>FE: Completado
 
-    Note over U,DB: ④ NOTA DE VENTA / EMBARQUE
+    Note over U,DB: Venta y Embarque
     U->>FE: Notas de Venta → + Nueva nota
-    FE->>API: POST /api/sales\n{ customerName, items:[{productId, qty, price}] }
-    API->>DB: INSERT SaleOrder + Items (status: borrador)
-    U->>FE: Clic "Embarcar y descontar inventario"
+    FE->>API: POST /api/sales
+    API->>DB: INSERT SaleOrder + Items (borrador)
+    U->>FE: Embarcar
     FE->>API: PATCH /api/sales/:id/ship
-    API->>DB: Transacción:\n- stock -= qty (producto terminado)\n- INSERT InventoryMovements (salida)
-    DB-->>API: Embarcado
-    API-->>FE: Nota embarcada ✓
-  </div>
-</section>
+    API->>DB: stock -= qty terminado · INSERT Movements
+    DB-->>FE: Embarcado
+      </div>
+    </div>
+  </section>
 
-<!-- ─────────────────────────── PRODUCCIÓN ────────────────────────────────── -->
-<section id="produccion">
-  <h2>⚙️ Detalle: Módulo de Producción</h2>
-  <p>Estados y transiciones de una Orden de Producción.</p>
-
-  <div class="mermaid">
+  <!-- ── PRODUCCIÓN ── -->
+  <section id="produccion">
+    <div class="section-label">04 — Módulo</div>
+    <h2>Órdenes de producción</h2>
+    <p class="section-sub">Estados y transiciones de una Orden de Producción.</p>
+    <hr class="rule">
+    <div class="diagram">
+      <div class="mermaid">
 stateDiagram-v2
-    [*] --> Borrador : Crear orden\n(POST /production)
-    Borrador --> EnProceso : Iniciar producción\n(PATCH .../status)
-    Borrador --> Completado : Completar directo\n(PATCH .../complete)
-    EnProceso --> Completado : Completar\n✓ Afecta inventario\n(PATCH .../complete)
+    [*] --> Borrador : Crear (POST /production)
+    Borrador --> EnProceso : Iniciar (PATCH .../status)
+    Borrador --> Completado : Completar directo
+    EnProceso --> Completado : Completar (PATCH .../complete)
     Borrador --> Cancelado : Cancelar
     EnProceso --> Cancelado : Cancelar
     Completado --> [*]
     Cancelado --> [*]
+      </div>
+    </div>
+    <div class="notice warn">Al completar (transacción): inputs → salida de inventario · outputs → entrada de inventario. Requiere stock suficiente en todos los insumos.</div>
+  </section>
 
-    note right of Completado
-        Al completar (transacción):
-        - items input  → salida de inventario
-        - items output → entrada de inventario
-        - Registra movimientos automáticos
-    end note
-  </div>
-
-  <div class="alert">
-    <strong>⚠️ Requisito para completar una orden</strong>
-    Los productos definidos como <strong>insumo (input)</strong> deben tener stock suficiente.
-    Si alguno tiene stock = 0, la operación falla con error 400 "Stock insuficiente".
-    Registra primero una <strong>entrada de inventario</strong> para esos productos.
-  </div>
-</section>
-
-<!-- ─────────────────────────── VENTAS ────────────────────────────────────── -->
-<section id="ventas">
-  <h2>🧾 Detalle: Módulo de Ventas (Nota de Venta)</h2>
-  <p>Estados y acciones disponibles en una Nota de Venta.</p>
-
-  <div class="mermaid">
+  <!-- ── VENTAS ── -->
+  <section id="ventas">
+    <div class="section-label">05 — Módulo</div>
+    <h2>Notas de venta</h2>
+    <p class="section-sub">Estados y acciones de una Nota de Venta.</p>
+    <hr class="rule">
+    <div class="diagram">
+      <div class="mermaid">
 stateDiagram-v2
-    [*] --> Borrador : Crear nota\n(POST /sales)
-    Borrador --> Confirmada : Confirmar\n(PATCH .../confirm)
-    Borrador --> Embarcada : Embarcar directo\n(PATCH .../ship)
-    Confirmada --> Embarcada : Embarcar\n✓ Descuenta inventario\n(PATCH .../ship)
+    [*] --> Borrador : Crear (POST /sales)
+    Borrador --> Confirmada : Confirmar (PATCH .../confirm)
+    Borrador --> Embarcada : Embarcar directo
+    Confirmada --> Embarcada : Embarcar (PATCH .../ship)
     Borrador --> Cancelada : Cancelar
     Confirmada --> Cancelada : Cancelar
     Embarcada --> [*]
     Cancelada --> [*]
+      </div>
+    </div>
+    <div class="notice info">Al embarcar (transacción): descuenta stock de producto terminado y registra movimientos de salida.</div>
+  </section>
 
-    note right of Embarcada
-        Al embarcar (transacción):
-        - Descuenta stock de cada producto
-        - Registra movimientos "salida"
-        - Actualiza shippedAt
-    end note
-  </div>
-</section>
-
-<!-- ─────────────────────────── INVENTARIO ────────────────────────────────── -->
-<section id="inventario">
-  <h2>📦 Detalle: Movimientos de Inventario</h2>
-  <p>Todo cambio de stock queda registrado como movimiento. Hay tres tipos.</p>
-
-  <div class="mermaid">
+  <!-- ── INVENTARIO ── -->
+  <section id="inventario">
+    <div class="section-label">06 — Módulo</div>
+    <h2>Movimientos de inventario</h2>
+    <p class="section-sub">Todo cambio de stock queda registrado como movimiento.</p>
+    <hr class="rule">
+    <div class="diagram">
+      <div class="mermaid">
 flowchart TD
-    A["Origen del movimiento"]
+    O["Origen del movimiento"]
+    O --> A["Entrada\nCompra MP · OP output"]
+    O --> B["Salida\nOP input · Embarque · Merma"]
+    O --> C["Ajuste\nCorreción manual"]
+    A --> D["stock = stock + qty"]
+    B --> E["stock = stock - qty\n(valida stock mayor o igual qty)"]
+    C --> F["stock = valor capturado"]
+    D --> G["INSERT InventoryMovement"]
+    E --> G
+    F --> G
+      </div>
+    </div>
+  </section>
 
-    A --> B["🟢 Entrada\nCompra de MP,\nproducción completada (output)"]
-    A --> C["🔴 Salida\nProducción completada (input),\nembarque de venta"]
-    A --> D["🔵 Ajuste\nCorrección manual\nde inventario"]
-
-    B --> E["Actualiza stock:\nstock = stock + cantidad"]
-    C --> F["Actualiza stock:\nstock = stock - cantidad\n(valida stock suficiente)"]
-    D --> G["Actualiza stock:\nstock = nueva cantidad"]
-
-    E --> H["INSERT InventoryMovement\n{ previousStock, newStock,\nquantity, cost, reason, userId }"]
-    F --> H
-    G --> H
-
-    style B fill:#dcfce7,stroke:#16a34a
-    style C fill:#fee2e2,stroke:#dc2626
-    style D fill:#dbeafe,stroke:#2563eb
-  </div>
-</section>
-
-<!-- ─────────────────────────── AUTH ──────────────────────────────────────── -->
-<section id="auth">
-  <h2>🔐 Autenticación y rutas protegidas</h2>
-  <p>JWT en ambos lados: el backend valida el token en cada request, el frontend redirige al login si no existe.</p>
-
-  <div class="mermaid">
+  <!-- ── AUTENTICACIÓN ── -->
+  <section id="auth">
+    <div class="section-label">07 — Seguridad</div>
+    <h2>Autenticación JWT</h2>
+    <p class="section-sub">Token Bearer en cada request. El frontend redirige al login si el token expira.</p>
+    <hr class="rule">
+    <div class="diagram">
+      <div class="mermaid">
 sequenceDiagram
     actor U as Usuario
     participant FE as Frontend
     participant API as Backend
 
-    U->>FE: Ingresa email + contraseña
+    U->>FE: Email + contraseña
     FE->>API: POST /api/auth/login
-    API->>API: bcrypt.compare(password, hash)
-    alt Credenciales válidas
-        API-->>FE: { token, user }
-        FE->>FE: localStorage.setItem("token")
-        FE-->>U: Redirige al Dashboard
-    else Inválidas
-        API-->>FE: 401 "Credenciales inválidas"
-        FE-->>U: Muestra error
+    API->>API: bcrypt.compare()
+    alt Válido
+        API-->>FE: token + user
+        FE->>FE: localStorage token
+        FE-->>U: Dashboard
+    else Inválido
+        API-->>FE: 401
+        FE-->>U: Error
     end
 
     Note over FE,API: Cada request autenticado
-    FE->>API: GET /api/products\nAuthorization: Bearer {token}
-    API->>API: jwt.verify(token)\nUser.findByPk(decoded.id)
+    FE->>API: GET /api/products Authorization Bearer token
+    API->>API: jwt.verify() User.findByPk()
     alt Token válido
         API-->>FE: 200 + datos
-    else Token expirado / inválido
+    else Expirado o inválido
         API-->>FE: 401
-        FE->>FE: Limpia localStorage\nRedirige a /login
+        FE->>FE: localStorage.clear() redirige a login
     end
-  </div>
-</section>
-
-<!-- ─────────────────────────── ROLES ─────────────────────────────────────── -->
-<section id="roles">
-  <h2>👥 Roles y permisos</h2>
-  <p>Tres niveles de acceso. El rol se verifica en el middleware <code>authorize()</code> del backend.</p>
-
-  <div class="roles">
-    <div class="role-card admin">
-      <h3>👑 Admin</h3>
-      <ul>
-        <li>Todo lo de manager</li>
-        <li>Registrar usuarios</li>
-        <li>Desactivar productos</li>
-        <li>Desactivar categorías / proveedores</li>
-        <li>Embarcar notas de venta</li>
-        <li>Ver valuación de inventario</li>
-      </ul>
-    </div>
-    <div class="role-card manager">
-      <h3>🧑‍💼 Manager</h3>
-      <ul>
-        <li>Todo lo de employee</li>
-        <li>Crear / editar productos</li>
-        <li>Crear / editar categorías</li>
-        <li>Crear / editar proveedores</li>
-        <li>Crear / completar órdenes de producción</li>
-        <li>Embarcar notas de venta</li>
-        <li>Ver valuación de inventario</li>
-      </ul>
-    </div>
-    <div class="role-card employee">
-      <h3>👷 Employee</h3>
-      <ul>
-        <li>Ver productos y stock</li>
-        <li>Registrar movimientos de inventario</li>
-        <li>Crear notas de venta (borrador)</li>
-        <li>Confirmar notas de venta</li>
-        <li>Ver historial de movimientos</li>
-        <li>Ver reportes básicos</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ─────────────────────────── ESTADOS ──────────────────────────────────── -->
-<section id="estados">
-  <h2>🏷️ Estados de los documentos</h2>
-
-  <div class="status-grid">
-    <div class="status-card">
-      <h3>Orden de Producción</h3>
-      <div class="status-flow">
-        <span class="s gray">Borrador</span>
-        <span class="arr">→</span>
-        <span class="s blue">En Proceso</span>
-        <span class="arr">→</span>
-        <span class="s green">Completado ✓</span>
-      </div>
-      <div class="status-flow" style="margin-top:.4rem">
-        <span class="s gray">Borrador / En Proceso</span>
-        <span class="arr">→</span>
-        <span class="s red">Cancelado</span>
       </div>
     </div>
-    <div class="status-card">
-      <h3>Nota de Venta</h3>
-      <div class="status-flow">
-        <span class="s gray">Borrador</span>
-        <span class="arr">→</span>
-        <span class="s blue">Confirmada</span>
-        <span class="arr">→</span>
-        <span class="s green">Embarcada 🚚</span>
+  </section>
+
+  <!-- ── ROLES ── -->
+  <section id="roles">
+    <div class="section-label">08 — Accesos</div>
+    <h2>Roles y permisos</h2>
+    <p class="section-sub">Verificados en el middleware <code>authorize()</code> del backend.</p>
+    <hr class="rule">
+    <div class="rol-grid">
+      <div class="rol-card admin">
+        <h3>👑 Admin</h3>
+        <ul>
+          <li>Todo lo del sistema</li>
+          <li>Crear y gestionar usuarios</li>
+          <li>Desactivar productos y familias</li>
+          <li>Embarcar notas de venta</li>
+          <li>Ver valuación de inventario</li>
+        </ul>
       </div>
-      <div class="status-flow" style="margin-top:.4rem">
-        <span class="s gray">Borrador / Confirmada</span>
-        <span class="arr">→</span>
-        <span class="s red">Cancelada</span>
+      <div class="rol-card manager">
+        <h3>🧑‍💼 Manager</h3>
+        <ul>
+          <li>Crear y editar productos</li>
+          <li>Crear y editar familias y proveedores</li>
+          <li>Completar órdenes de producción</li>
+          <li>Embarcar notas de venta</li>
+          <li>Ver valuación de inventario</li>
+        </ul>
+      </div>
+      <div class="rol-card employee">
+        <h3>👷 Empleado</h3>
+        <ul>
+          <li>Ver productos y stock</li>
+          <li>Registrar movimientos manuales</li>
+          <li>Crear y confirmar notas de venta</li>
+          <li>Ver historial y reportes básicos</li>
+        </ul>
       </div>
     </div>
-    <div class="status-card">
-      <h3>Producto</h3>
-      <div class="status-flow">
-        <span class="s green">A — Activo</span>
-        <span class="arr">→</span>
-        <span class="s red">I — Inactivo</span>
+  </section>
+
+  <!-- ── ESTADOS ── -->
+  <section id="estados">
+    <div class="section-label">09 — Referencia</div>
+    <h2>Estados de los documentos</h2>
+    <hr class="rule">
+    <div class="status-grid">
+      <div class="status-card">
+        <h3>Orden de Producción</h3>
+        <div class="flow-row">
+          <span class="st gray">Borrador</span><span class="arr">→</span>
+          <span class="st orange">En proceso</span><span class="arr">→</span>
+          <span class="st green">Completado ✓</span>
+        </div>
+        <div class="flow-row" style="margin-top:.4rem">
+          <span class="st gray">Borrador · En proceso</span><span class="arr">→</span>
+          <span class="st red">Cancelado</span>
+        </div>
       </div>
-      <p style="font-size:.78rem;color:#64748b;margin-top:.4rem">Inactivo = soft delete (no se elimina de la BD)</p>
-    </div>
-    <div class="status-card">
-      <h3>Tipos de Producto</h3>
-      <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.2rem">
-        <span class="s" style="background:#fef9c3;color:#854d0e">materia_prima</span>
-        <span class="s" style="background:#f0fdf4;color:#166534">material_empaque</span>
-        <span class="s" style="background:#dbeafe;color:#1e40af">granel</span>
-        <span class="s" style="background:#ede9fe;color:#6d28d9">terminado</span>
-        <span class="s gray">general</span>
+      <div class="status-card">
+        <h3>Nota de Venta</h3>
+        <div class="flow-row">
+          <span class="st gray">Borrador</span><span class="arr">→</span>
+          <span class="st orange">Confirmada</span><span class="arr">→</span>
+          <span class="st green">Embarcada</span>
+        </div>
+        <div class="flow-row" style="margin-top:.4rem">
+          <span class="st gray">Borrador · Confirmada</span><span class="arr">→</span>
+          <span class="st red">Cancelada</span>
+        </div>
+      </div>
+      <div class="status-card">
+        <h3>Producto</h3>
+        <div class="flow-row">
+          <span class="st green">A — Activo</span><span class="arr">→</span>
+          <span class="st red">I — Inactivo</span>
+        </div>
+        <p style="font-size:.75rem;color:var(--mid);margin-top:.5rem">Soft delete: no se elimina de la base de datos.</p>
+      </div>
+      <div class="status-card">
+        <h3>Tipos de Producto</h3>
+        <div class="flow-row" style="gap:.4rem">
+          <span class="st" style="background:#FEF9C3;color:#854D0E;border-color:#FDE68A">materia_prima</span>
+          <span class="st" style="background:#F0FDF4;color:#15803D;border-color:#BBF7D0">material_empaque</span>
+          <span class="st" style="background:#DBEAFE;color:#1D4ED8;border-color:#BFDBFE">granel</span>
+          <span class="st" style="background:#F5F3FF;color:#6D28D9;border-color:#DDD6FE">terminado</span>
+          <span class="st gray">general</span>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ─────────────────────────── API ───────────────────────────────────────── -->
-<section id="api">
-  <h2>📡 Referencia de API REST</h2>
-  <p>Todos los endpoints requieren <code>Authorization: Bearer {token}</code> excepto <code>/auth/login</code>.</p>
+  <!-- ── API ── -->
+  <section id="api">
+    <div class="section-label">10 — Endpoints</div>
+    <h2>API REST</h2>
+    <p class="section-sub">Todos los endpoints requieren <code>Authorization: Bearer {token}</code> excepto <code>/auth/login</code>.</p>
+    <hr class="rule">
+    <table>
+      <thead><tr><th>Método</th><th>Endpoint</th><th>Descripción</th><th>Rol</th></tr></thead>
+      <tbody>
+        <tr class="group-row"><td colspan="4">Autenticación</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/api/auth/login</code></td><td>Iniciar sesión → token JWT</td><td>—</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/api/auth/register</code></td><td>Crear usuario</td><td>admin</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/auth/profile</code></td><td>Perfil del usuario actual</td><td>todos</td></tr>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Método</th><th>Endpoint</th><th>Descripción</th><th>Rol mínimo</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- AUTH -->
-      <tr><td colspan="4" style="background:#f8fafc;font-weight:700;color:#475569;font-size:.78rem">AUTENTICACIÓN</td></tr>
-      <tr><td><span class="badge post">POST</span></td><td><code>/api/auth/login</code></td><td>Iniciar sesión → token JWT</td><td>—</td></tr>
-      <tr><td><span class="badge post">POST</span></td><td><code>/api/auth/register</code></td><td>Crear usuario</td><td>admin</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/auth/profile</code></td><td>Perfil del usuario actual</td><td>todos</td></tr>
-      <tr><td><span class="badge patch">PUT</span></td><td><code>/api/auth/change-password</code></td><td>Cambiar contraseña</td><td>todos</td></tr>
-      <!-- PRODUCTOS -->
-      <tr><td colspan="4" style="background:#f8fafc;font-weight:700;color:#475569;font-size:.78rem">PRODUCTOS</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/products</code></td><td>Listado paginado (filtros: search, categoryId, status)</td><td>todos</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/products/:id</code></td><td>Detalle de producto</td><td>todos</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/products/low-stock</code></td><td>Productos con stock ≤ minStock</td><td>todos</td></tr>
-      <tr><td><span class="badge post">POST</span></td><td><code>/api/products</code></td><td>Crear producto</td><td>manager</td></tr>
-      <tr><td><span class="badge patch">PUT</span></td><td><code>/api/products/:id</code></td><td>Actualizar producto</td><td>manager</td></tr>
-      <tr><td><span class="badge delete">DELETE</span></td><td><code>/api/products/:id</code></td><td>Desactivar producto (status → I)</td><td>admin</td></tr>
-      <!-- FAMILIAS -->
-      <tr><td colspan="4" style="background:#f8fafc;font-weight:700;color:#475569;font-size:.78rem">FAMILIAS (CATEGORÍAS)</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/categories</code></td><td>Todas las familias del negocio</td><td>todos</td></tr>
-      <tr><td><span class="badge post">POST</span></td><td><code>/api/categories</code></td><td>Crear familia</td><td>manager</td></tr>
-      <tr><td><span class="badge patch">PUT</span></td><td><code>/api/categories/:id</code></td><td>Editar familia</td><td>manager</td></tr>
-      <tr><td><span class="badge delete">DELETE</span></td><td><code>/api/categories/:id</code></td><td>Desactivar familia</td><td>admin</td></tr>
-      <!-- INVENTARIO -->
-      <tr><td colspan="4" style="background:#f8fafc;font-weight:700;color:#475569;font-size:.78rem">INVENTARIO</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/inventory/movements</code></td><td>Historial de movimientos paginado</td><td>todos</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/inventory/stock</code></td><td>Stock actual de todos los productos</td><td>todos</td></tr>
-      <tr><td><span class="badge post">POST</span></td><td><code>/api/inventory/movements</code></td><td>Registrar entrada / salida / ajuste manual</td><td>todos</td></tr>
-      <!-- PRODUCCIÓN -->
-      <tr><td colspan="4" style="background:#f8fafc;font-weight:700;color:#475569;font-size:.78rem">PRODUCCIÓN</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/production</code></td><td>Órdenes de producción paginadas</td><td>todos</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/production/:id</code></td><td>Detalle de orden</td><td>todos</td></tr>
-      <tr><td><span class="badge post">POST</span></td><td><code>/api/production</code></td><td>Crear orden (area + items input/output)</td><td>manager</td></tr>
-      <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/production/:id/complete</code></td><td>Completar y afectar inventario (transacción)</td><td>manager</td></tr>
-      <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/production/:id/status</code></td><td>Cambiar status (borrador → en_proceso)</td><td>manager</td></tr>
-      <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/production/:id/cancel</code></td><td>Cancelar orden</td><td>manager</td></tr>
-      <!-- VENTAS -->
-      <tr><td colspan="4" style="background:#f8fafc;font-weight:700;color:#475569;font-size:.78rem">VENTAS (NOTA DE VENTA)</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/sales</code></td><td>Notas de venta paginadas</td><td>todos</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/sales/:id</code></td><td>Detalle de nota</td><td>todos</td></tr>
-      <tr><td><span class="badge post">POST</span></td><td><code>/api/sales</code></td><td>Crear nota de venta (borrador)</td><td>todos</td></tr>
-      <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/sales/:id/confirm</code></td><td>Confirmar nota</td><td>todos</td></tr>
-      <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/sales/:id/ship</code></td><td>Embarcar y descontar inventario (transacción)</td><td>manager</td></tr>
-      <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/sales/:id/cancel</code></td><td>Cancelar nota</td><td>todos</td></tr>
-      <!-- PROVEEDORES -->
-      <tr><td colspan="4" style="background:#f8fafc;font-weight:700;color:#475569;font-size:.78rem">PROVEEDORES</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/suppliers</code></td><td>Lista de proveedores</td><td>todos</td></tr>
-      <tr><td><span class="badge post">POST</span></td><td><code>/api/suppliers</code></td><td>Crear proveedor</td><td>manager</td></tr>
-      <tr><td><span class="badge patch">PUT</span></td><td><code>/api/suppliers/:id</code></td><td>Editar proveedor</td><td>manager</td></tr>
-      <tr><td><span class="badge delete">DELETE</span></td><td><code>/api/suppliers/:id</code></td><td>Desactivar proveedor</td><td>admin</td></tr>
-      <!-- REPORTES -->
-      <tr><td colspan="4" style="background:#f8fafc;font-weight:700;color:#475569;font-size:.78rem">REPORTES</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/reports/summary</code></td><td>Resumen dashboard (totales, alertas, movimientos hoy)</td><td>todos</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/reports/stock-valuation</code></td><td>Valuación total del inventario (stock × costo)</td><td>manager</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/reports/movements</code></td><td>Historial con filtros de fecha, tipo, producto</td><td>todos</td></tr>
-      <tr><td><span class="badge get">GET</span></td><td><code>/api/reports/low-stock</code></td><td>Productos con stock ≤ minStock</td><td>todos</td></tr>
-    </tbody>
-  </table>
-</section>
+        <tr class="group-row"><td colspan="4">Productos</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/products</code></td><td>Listado paginado (search, categoryId, status)</td><td>todos</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/products/low-stock</code></td><td>Productos con stock ≤ minStock</td><td>todos</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/api/products</code></td><td>Crear producto</td><td>manager</td></tr>
+        <tr><td><span class="badge patch">PUT</span></td><td><code>/api/products/:id</code></td><td>Actualizar producto</td><td>manager</td></tr>
+        <tr><td><span class="badge del">DEL</span></td><td><code>/api/products/:id</code></td><td>Desactivar (status → I)</td><td>admin</td></tr>
 
-<!-- ─────────────────────────── BASE DE DATOS ─────────────────────────────── -->
-<section id="bd">
-  <h2>🗄️ Modelo de base de datos</h2>
-  <p>Relaciones entre las 11 tablas del sistema.</p>
+        <tr class="group-row"><td colspan="4">Familias</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/categories</code></td><td>Todas las familias</td><td>todos</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/api/categories</code></td><td>Crear familia</td><td>manager</td></tr>
+        <tr><td><span class="badge patch">PUT</span></td><td><code>/api/categories/:id</code></td><td>Editar familia</td><td>manager</td></tr>
 
-  <div class="mermaid">
+        <tr class="group-row"><td colspan="4">Inventario</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/inventory/movements</code></td><td>Historial paginado</td><td>todos</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/api/inventory/movements</code></td><td>Entrada / salida / ajuste manual</td><td>todos</td></tr>
+
+        <tr class="group-row"><td colspan="4">Producción</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/production</code></td><td>Órdenes paginadas</td><td>todos</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/api/production</code></td><td>Crear orden</td><td>manager</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/production/:id/complete</code></td><td>Completar — afecta inventario (transacción)</td><td>manager</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/production/:id/status</code></td><td>Cambiar estado</td><td>manager</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/production/:id/cancel</code></td><td>Cancelar orden</td><td>manager</td></tr>
+
+        <tr class="group-row"><td colspan="4">Ventas</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/sales</code></td><td>Notas paginadas</td><td>todos</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/api/sales</code></td><td>Crear nota (borrador)</td><td>todos</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/sales/:id/confirm</code></td><td>Confirmar nota</td><td>todos</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/sales/:id/ship</code></td><td>Embarcar — descuenta inventario (transacción)</td><td>manager</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td><code>/api/sales/:id/cancel</code></td><td>Cancelar nota</td><td>todos</td></tr>
+
+        <tr class="group-row"><td colspan="4">Reportes</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/reports/summary</code></td><td>KPIs del Dashboard</td><td>todos</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/reports/stock-valuation</code></td><td>Valuación total (stock × costo)</td><td>manager</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/api/reports/low-stock</code></td><td>Productos en stock mínimo</td><td>todos</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── BASE DE DATOS ── -->
+  <section id="bd">
+    <div class="section-label">11 — Datos</div>
+    <h2>Modelo de base de datos</h2>
+    <p class="section-sub">11 tablas con campo <code>businessId</code> en todas para soporte multi-negocio.</p>
+    <hr class="rule">
+    <div class="diagram">
+      <div class="mermaid">
 erDiagram
-    Business {
-        int id PK
-        string name
-        string type
-        json settings
-    }
-    User {
-        int id PK
-        string name
-        string email
-        string password
-        enum role
-        int businessId FK
-    }
-    Category {
-        int id PK
-        string name
-        int businessId FK
-    }
-    UnitOfMeasure {
-        int id PK
-        string code
-        string name
-    }
-    Product {
-        int id PK
-        string code
-        string name
-        decimal cost
-        decimal price
-        decimal stock
-        decimal minStock
-        enum status
-        enum productType
-        int categoryId FK
-        int unitOfMeasureId FK
-        int businessId FK
-    }
-    Supplier {
-        int id PK
-        string name
-        string rfc
-        int businessId FK
-    }
-    InventoryMovement {
-        int id PK
-        enum type
-        decimal quantity
-        decimal previousStock
-        decimal newStock
-        int productId FK
-        int userId FK
-        int supplierId FK
-        int businessId FK
-    }
-    ProductionOrder {
-        int id PK
-        string folio
-        enum area
-        enum status
-        int userId FK
-        int businessId FK
-    }
-    ProductionOrderItem {
-        int id PK
-        enum itemType
-        decimal quantity
-        int productionOrderId FK
-        int productId FK
-    }
-    SaleOrder {
-        int id PK
-        string folio
-        string customerName
-        decimal total
-        enum status
-        int userId FK
-        int businessId FK
-    }
-    SaleOrderItem {
-        int id PK
-        decimal quantity
-        decimal unitPrice
-        int saleOrderId FK
-        int productId FK
-    }
+    Business { int id string name string type json settings }
+    User { int id string name string email enum role int businessId }
+    Category { int id string name int businessId }
+    UnitOfMeasure { int id string code string name }
+    Product { int id string code string name decimal stock decimal minStock enum productType int categoryId int businessId }
+    Supplier { int id string name string rfc int businessId }
+    InventoryMovement { int id enum type decimal quantity decimal previousStock decimal newStock int productId int userId }
+    ProductionOrder { int id string folio enum area enum status int userId int businessId }
+    ProductionOrderItem { int id enum itemType decimal quantity int productionOrderId int productId }
+    SaleOrder { int id string folio string customerName decimal total enum status int userId int businessId }
+    SaleOrderItem { int id decimal quantity decimal unitPrice int saleOrderId int productId }
 
-    Business ||--o{ User : "tiene"
-    Business ||--o{ Category : "tiene"
-    Business ||--o{ Product : "tiene"
-    Business ||--o{ Supplier : "tiene"
-    Business ||--o{ ProductionOrder : "tiene"
-    Business ||--o{ SaleOrder : "tiene"
-    Category ||--o{ Product : "clasifica"
-    UnitOfMeasure ||--o{ Product : "mide"
-    Product ||--o{ InventoryMovement : "registra"
-    Product ||--o{ ProductionOrderItem : "participa"
-    Product ||--o{ SaleOrderItem : "incluye"
-    ProductionOrder ||--o{ ProductionOrderItem : "contiene"
-    SaleOrder ||--o{ SaleOrderItem : "contiene"
-    User ||--o{ InventoryMovement : "genera"
-    User ||--o{ ProductionOrder : "crea"
-    User ||--o{ SaleOrder : "crea"
-    Supplier ||--o{ InventoryMovement : "provee"
-  </div>
-</section>
+    Business ||--o{ User : ""
+    Business ||--o{ Product : ""
+    Business ||--o{ ProductionOrder : ""
+    Business ||--o{ SaleOrder : ""
+    Category ||--o{ Product : ""
+    UnitOfMeasure ||--o{ Product : ""
+    Product ||--o{ InventoryMovement : ""
+    Product ||--o{ ProductionOrderItem : ""
+    Product ||--o{ SaleOrderItem : ""
+    ProductionOrder ||--o{ ProductionOrderItem : ""
+    SaleOrder ||--o{ SaleOrderItem : ""
+    User ||--o{ ProductionOrder : ""
+    User ||--o{ SaleOrder : ""
+    Supplier ||--o{ InventoryMovement : ""
+      </div>
+    </div>
+  </section>
 
 </main>
 
-<footer>Sistema de Inventario — BOTANAS HEBI · Generado el 2026-06-08</footer>
+<footer>
+  Flujo del sistema · <span>Botanas HEBI</span> · 2026
+</footer>
 
 <script>
-  mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
 </script>
 </body>
 </html>

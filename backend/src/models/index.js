@@ -1,19 +1,30 @@
 const { Sequelize } = require('sequelize');
 const config = require('../config/database');
 
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
+let sequelize;
+
+if (process.env.DATABASE_URL) {
+  // Producción (Render): PostgreSQL vía cadena de conexión con SSL.
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    protocol: 'postgres',
+    define: config.define,
+    logging: false,
+    dialectOptions: {
+      ssl: { require: true, rejectUnauthorized: false },
+    },
+  });
+} else {
+  // Desarrollo local: usa las variables individuales (MySQL por defecto).
+  sequelize = new Sequelize(config.database, config.username, config.password, {
     host: config.host,
     port: config.port,
     dialect: config.dialect,
     timezone: config.timezone,
     define: config.define,
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
-  }
-);
+  });
+}
 
 const Business            = require('./Business')(sequelize);
 const User                = require('./User')(sequelize);

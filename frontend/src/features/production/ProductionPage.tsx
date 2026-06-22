@@ -6,7 +6,7 @@ import {
   cancelProductionOrder,
   updateProductionOrderStatus,
 } from './productionSlice';
-import type { ProductionOrder, ProductionOrderArea, ProductionOrderStatus } from '@/types';
+import type { ProductionOrderArea, ProductionOrderStatus } from '@/types';
 import ProductionOrderForm from './ProductionOrderForm';
 
 const areaLabel: Record<ProductionOrderArea, string> = {
